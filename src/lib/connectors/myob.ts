@@ -1,4 +1,4 @@
-import type { MetricSnapshot } from "@/lib/metrics";
+import type { MetricSnapshot } from "@/types/metrics";
 
 export async function fetchMyobMetrics(): Promise<
   Pick<MetricSnapshot, "profit" | "payments"> | null

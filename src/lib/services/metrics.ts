@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { metricSnapshot, type MetricSnapshot } from "@/lib/metrics";
+import { metricSnapshot } from "@/lib/metrics";
 import { fetchConnectTeamMetrics } from "@/lib/connectors/connect-team";
 import { fetchInternalAppMetrics } from "@/lib/connectors/internal-app";
 import { fetchMyobMetrics } from "@/lib/connectors/myob";
+import type { MetricSnapshot } from "@/types/metrics";
 
 export async function getLatestMetricSnapshot(): Promise<MetricSnapshot> {
   try {
