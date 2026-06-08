@@ -1,5 +1,7 @@
 import type { MetricSnapshot } from "@/types/metrics";
 
+export type { MetricSnapshot, Status } from "@/types/metrics";
+
 export const metricSnapshot: MetricSnapshot = {
   refreshedAt: "2026-06-08T08:25:00.000Z",
   cashflow: {

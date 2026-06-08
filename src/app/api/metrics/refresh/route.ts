@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuthResponse } from "@/lib/auth/guard";
 import { refreshMetricSnapshot } from "@/lib/services/metrics";
 
 export async function POST(request: NextRequest) {
-  const configuredSecret = process.env.METRICS_REFRESH_SECRET;
-  const providedSecret = request.headers.get("x-refresh-secret");
+  const { response } = await requireAuthResponse(request);
 
-  if (configuredSecret && configuredSecret !== providedSecret) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (response) {
+    return response;
   }
 
   const snapshot = await refreshMetricSnapshot();

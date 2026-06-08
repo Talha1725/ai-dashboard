@@ -10,11 +10,13 @@
     "prepush": "npm run build",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "auth:seed": "node scripts/seed-admin.mjs"
     "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.17.0",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
