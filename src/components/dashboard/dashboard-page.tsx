@@ -1,3 +1,4 @@
+import { LogoutButton } from "@/components/auth/logout-button";
 import { CashflowCard } from "@/components/dashboard/cashflow-card";
 import { DeliveriesCard } from "@/components/dashboard/deliveries-card";
 import { IntegrationStatus } from "@/components/dashboard/integration-status";
@@ -22,8 +23,11 @@ export function DashboardPage({ snapshot }: DashboardPageProps) {
               Business Intelligence Dashboard
             </h1>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
-            Last updated <span className="font-semibold text-slate-950">{lastUpdated}</span>
+          <div className="flex flex-col gap-3 sm:items-end">
+            <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+              Last updated <span className="font-semibold text-slate-950">{lastUpdated}</span>
+            </div>
+            <LogoutButton />
           </div>
         </header>
 

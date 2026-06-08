@@ -50,8 +50,10 @@ model CashflowUpload {
 model AdminUser {
   id           String        @id @default(cuid())
   email        String        @unique
+  name         String        @default("Admin")
   passwordHash String
   sessions     AuthSession[]
+  passwordResetTokens PasswordResetToken[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -61,6 +63,19 @@ model AuthSession {
   adminUserId String
   tokenHash   String    @unique
   expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  adminUser    AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id          String    @id @default(cuid())
+  adminUserId String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
   createdAt   DateTime  @default(now())
   adminUser    AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
 
