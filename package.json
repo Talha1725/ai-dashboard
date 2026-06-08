@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "prepush": "npm run build",
+    "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "auth:seed": "node scripts/seed-admin.mjs",
