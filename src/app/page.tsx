@@ -1,4 +1,5 @@
-import { formatCurrency, metricSnapshot, type Status } from "@/lib/metrics";
+import { formatCurrency, metricSnapshot } from "@/lib/metrics";
+import type { Status } from "@/types/metrics";
 
 const statusStyles: Record<Status, string> = {
   good: "border-emerald-200 bg-emerald-50 text-emerald-800",

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuthResponse } from "@/lib/auth/guard";
 import { prisma } from "@/lib/prisma";
 import { parseCashflowWorkbook } from "@/lib/services/excel";
 import { replaceCashflowWeeks } from "@/lib/services/metrics";
 
 export async function POST(request: NextRequest) {
+  const { response } = await requireAuthResponse(request);
+
+  if (response) {
+    return response;
+  }
+
   const formData = await request.formData();
   const file = formData.get("file");
 
