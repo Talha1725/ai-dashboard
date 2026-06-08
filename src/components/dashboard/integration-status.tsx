@@ -1,10 +1,14 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 const integrations = ["MYOB", "Connect Team", "Internal app", "Excel upload"];
 
 export function IntegrationStatus() {
   return (
-    <section className="rounded-lg border border-slate-200 bg-slate-950 p-5 text-white shadow-sm">
-      <h2 className="text-base font-semibold">Integration Status</h2>
-      <div className="mt-5 space-y-3 text-sm">
+    <Card className="border-slate-800 bg-slate-950 text-white">
+      <CardHeader>
+        <CardTitle>Integration Status</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
         {integrations.map((source) => (
           <div key={source} className="flex items-center justify-between gap-4">
             <span className="text-slate-300">{source}</span>
@@ -13,7 +17,7 @@ export function IntegrationStatus() {
             </span>
           </div>
         ))}
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 }
