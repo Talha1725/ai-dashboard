@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHmac, randomBytes } from "crypto";
+import { cookies } from "next/headers";
 import type { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { toAuthUser } from "@/lib/auth/admin";
@@ -74,9 +75,7 @@ export function clearSessionCookie(response: NextResponse) {
   });
 }
 
-export async function verifySessionFromRequest(request: NextRequest): Promise<AuthResult> {
-  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-
+async function verifySessionToken(token?: string): Promise<AuthResult> {
   if (!token) {
     return { authenticated: false };
   }
@@ -104,6 +103,16 @@ export async function verifySessionFromRequest(request: NextRequest): Promise<Au
     sessionId: session.id,
     user: toAuthUser(session.adminUser),
   };
+}
+
+export async function verifySessionFromRequest(request: NextRequest): Promise<AuthResult> {
+  return verifySessionToken(request.cookies.get(AUTH_COOKIE_NAME)?.value);
+}
+
+export async function verifySessionFromCookies(): Promise<AuthResult> {
+  const cookieStore = await cookies();
+
+  return verifySessionToken(cookieStore.get(AUTH_COOKIE_NAME)?.value);
 }
 
 export async function revokeSessionFromRequest(request: NextRequest) {

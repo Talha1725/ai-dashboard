@@ -2,9 +2,11 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { login } from "@/features/auth/api/auth-client"
 import { loginSchema, type LoginInput } from "@/features/auth/schemas/login.schema"
 import { AUTH_ROUTES } from "@/features/auth/constants/auth.constants"
 import { Button } from "@/components/ui/button"
@@ -13,8 +15,10 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export function LoginForm() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [formError, setFormError] = React.useState<string | null>(null)
 
   const {
     register,
@@ -31,11 +35,20 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginInput) => {
     setIsSubmitting(true)
-    // Mock login - no backend integration
-    console.log("Login attempt:", data)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsSubmitting(false)
-    // Mock login complete - no backend integration
+    setFormError(null)
+
+    try {
+      await login({
+        email: data.email,
+        password: data.password,
+      })
+      router.replace(AUTH_ROUTES.dashboard)
+      router.refresh()
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Unable to sign in.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -50,6 +63,12 @@ export function LoginForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {formError && (
+            <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {formError}
+            </p>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

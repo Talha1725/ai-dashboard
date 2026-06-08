@@ -10,12 +10,13 @@
     "prepush": "npm run build",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "auth:seed": "node scripts/seed-admin.mjs"
+    "auth:seed": "node scripts/seed-admin.mjs",
     "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@prisma/client": "^6.19.3",
+    "@sendgrid/mail": "^8.1.6",
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
