@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { metricSnapshot } from "@/lib/metrics";
+import { getLatestMetricSnapshot } from "@/lib/services/metrics";
 
 export async function GET() {
-  return NextResponse.json(metricSnapshot);
+  const snapshot = await getLatestMetricSnapshot();
+
+  return NextResponse.json(snapshot);
 }

@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Dashboard
 
-## Getting Started
+Business health dashboard for cashflow, profit, overtime, delivery status, and payment alerts.
 
-First, run the development server:
+## Tech Stack
+
+- Next.js with TypeScript
+- Tailwind CSS
+- Next.js Route Handlers for backend APIs
+- PostgreSQL with Prisma
+- XLSX parsing for cashflow uploads
+
+## Local Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create your local environment file:
+
+```bash
+cp .env.example .env
+```
+
+Set `DATABASE_URL` in `.env`, then generate Prisma client:
+
+```bash
+npm run db:generate
+```
+
+Run database migrations once Postgres is available:
+
+```bash
+npm run db:migrate
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Backend Routes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `GET /api/metrics` returns the latest cached dashboard snapshot.
+- `POST /api/metrics/refresh` refreshes dashboard data from configured connectors.
+- `POST /api/cashflow/upload` accepts an Excel file field named `file` and updates cashflow weeks.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Phase 1 Status
 
-## Learn More
+Backend foundation is in place:
 
-To learn more about Next.js, take a look at the following resources:
+- Prisma schema for metric snapshots, refresh logs, and cashflow uploads
+- Connector placeholders for MYOB, Connect Team, and the internal job tracking app
+- Excel workbook parser for the cashflow source
+- Metrics service with database fallback to mock data until Postgres/API credentials are configured
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Required Client Inputs
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- MYOB API credentials and API documentation
+- Connect Team API endpoint and API key
+- Internal job tracking app source/API documentation
+- Sample Excel cashflow spreadsheet
+- PostgreSQL database URL

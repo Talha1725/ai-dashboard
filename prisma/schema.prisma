@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RefreshSource {
+  CASHFLOW_EXCEL
+  MYOB
+  CONNECT_TEAM
+  INTERNAL_APP
+  DASHBOARD
+}
+
+enum RefreshStatus {
+  SUCCESS
+  FAILED
+}
+
+model MetricSnapshot {
+  id          String   @id @default(cuid())
+  payload     Json
+  refreshedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SourceRefreshLog {
+  id        String        @id @default(cuid())
+  source    RefreshSource
+  status    RefreshStatus
+  message   String?
+  startedAt DateTime      @default(now())
+  endedAt   DateTime?
+  metadata  Json?
+}
+
+model CashflowUpload {
+  id           String   @id @default(cuid())
+  fileName     String
+  weekCount    Int
+  parsedWeeks  Json
+  uploadedAt   DateTime @default(now())
+}
