@@ -10,7 +10,7 @@
     "prepush": "npm run build",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "auth:seed": "node scripts/seed-admin.mjs"
+    "auth:seed": "node scripts/seed-admin.mjs",
     "prepare": "husky"
   },
   "dependencies": {
