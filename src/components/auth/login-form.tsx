@@ -42,6 +42,7 @@ export function LoginForm() {
       await login({
         email: data.email,
         password: data.password,
+        rememberMe: data.rememberMe,
       })
       appToast.success("Signed in successfully.")
       router.replace(AUTH_ROUTES.dashboard)

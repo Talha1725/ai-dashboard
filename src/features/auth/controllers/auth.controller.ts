@@ -31,6 +31,7 @@ function parseLoginPayload(value: unknown): LoginPayload | null {
   return {
     email: payload.email.trim().toLowerCase(),
     password: payload.password,
+    rememberMe: typeof payload.rememberMe === "boolean" ? payload.rememberMe : false,
   };
 }
 
