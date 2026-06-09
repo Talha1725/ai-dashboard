@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
-import { signup } from "@/features/auth/api/auth-client"
+import { signup, logout } from "@/features/auth/api/auth-client"
 import { signupSchema, type SignupInput } from "@/features/auth/schemas/signup.schema"
 import { AUTH_ROUTES } from "@/features/auth/constants/auth.constants"
 import { appToast } from "@/lib/toast"
@@ -47,9 +47,9 @@ export function SignupForm() {
         password: data.password,
         confirmPassword: data.confirmPassword,
       })
-      appToast.success("Account created successfully.")
-      router.replace(AUTH_ROUTES.dashboard)
-      router.refresh()
+      await logout()
+      appToast.success("Account created successfully. Please sign in.")
+      router.replace(AUTH_ROUTES.login)
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to create account."
       setFormError(message)
