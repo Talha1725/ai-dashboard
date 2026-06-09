@@ -100,3 +100,7 @@ export type PaymentsCardProps = {
 export type IntegrationStatusProps = {
   integrations: DataSourceHealth[];
 };
+
+export type DashboardOverviewProps = {
+  snapshot: MetricSnapshot;
+};
