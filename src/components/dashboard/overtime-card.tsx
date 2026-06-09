@@ -11,24 +11,24 @@ export function OvertimeCard({ overtime }: OvertimeCardProps) {
         <div
           className="grid size-32 shrink-0 place-items-center rounded-full"
           style={{
-            background: `conic-gradient(#d97706 ${percentage * 3.6}deg, #f1f5f9 0deg)`,
+            background: `conic-gradient(var(--warning-border) ${percentage * 3.6}deg, var(--progress-track) 0deg)`,
           }}
         >
-          <div className="grid size-24 place-items-center rounded-full bg-white text-center">
+          <div className="grid size-24 place-items-center rounded-full bg-[color:var(--surface)] text-center shadow-inner">
             <div>
-              <div className="text-3xl font-bold text-slate-950">{overtime.hours}</div>
-              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+              <div className="text-3xl font-bold text-[color:var(--foreground)]">{overtime.hours}</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--text-subtle)]">
                 hours
               </div>
             </div>
           </div>
         </div>
         <div>
-          <p className="text-sm text-slate-600">{percentage}% of team in overtime</p>
-          <p className="mt-2 text-2xl font-bold text-slate-950">
+          <p className="text-sm text-[color:var(--text-soft)]">{percentage}% of team in overtime</p>
+          <p className="mt-2 text-2xl font-bold text-[color:var(--foreground)]">
             +{formatCurrency(overtime.costImpact)}
           </p>
-          <p className="text-sm text-slate-500">cost impact this week</p>
+          <p className="text-sm text-[color:var(--text-subtle)]">cost impact this week</p>
         </div>
       </div>
     </MetricCard>

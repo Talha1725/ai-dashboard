@@ -9,12 +9,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     const variants: Record<string, string> = {
-      default: "bg-primary text-primary-foreground hover:bg-primary/90",
+      default: "dashboard-primary-action",
       destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-      outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-      secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-      ghost: "hover:bg-accent hover:text-accent-foreground",
-      link: "text-primary underline-offset-4 hover:underline",
+      outline: "dashboard-outline-action border",
+      secondary: "bg-[color:var(--success-soft)] text-[color:var(--success)] hover:bg-[color:var(--muted)]",
+      ghost: "hover:bg-[color:var(--surface-soft)] hover:text-[color:var(--foreground)]",
+      link: "text-[color:var(--primary)] underline-offset-4 hover:underline",
     }
 
     const sizes: Record<string, string> = {

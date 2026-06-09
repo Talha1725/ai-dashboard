@@ -13,6 +13,26 @@
   --muted-foreground: #64748b;
   --destructive: #e11d48;
   --border: #e2e8f0;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --page-gradient-start: #eef9f5;
+  --page-gradient-mid: #f8fbfd;
+  --page-gradient-end: #eef3f8;
+  --text-soft: #475569;
+  --text-subtle: #64748b;
+  --shadow-soft: #cbd5e1;
+  --success: #047857;
+  --success-soft: #ecfdf5;
+  --success-border: #a7f3d0;
+  --warning: #b45309;
+  --warning-soft: #fffbeb;
+  --warning-border: #fde68a;
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --danger-border: #fecaca;
+  --cashflow-start: #14b8a6;
+  --cashflow-end: #10b981;
+  --progress-track: #e2e8f0;
 }
 
 @theme inline {
@@ -30,6 +50,26 @@
   --color-border: var(--border);
   --color-input: var(--border);
   --color-ring: var(--primary);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-page-gradient-start: var(--page-gradient-start);
+  --color-page-gradient-mid: var(--page-gradient-mid);
+  --color-page-gradient-end: var(--page-gradient-end);
+  --color-text-soft: var(--text-soft);
+  --color-text-subtle: var(--text-subtle);
+  --color-shadow-soft: var(--shadow-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+  --color-cashflow-start: var(--cashflow-start);
+  --color-cashflow-end: var(--cashflow-end);
+  --color-progress-track: var(--progress-track);
   --font-sans: Arial, Helvetica, sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
@@ -43,4 +83,84 @@ body {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-page-bg {
+  background: linear-gradient(
+    135deg,
+    var(--page-gradient-start) 0%,
+    var(--page-gradient-mid) 42%,
+    var(--page-gradient-end) 100%
+  );
+}
+
+.dashboard-glass-panel {
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--surface) 88%, transparent) !important;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 55%, transparent);
+}
+
+.dashboard-card-surface {
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--surface) 94%, transparent) !important;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 50%, transparent);
+}
+
+.dashboard-card-surface:hover {
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--shadow-soft) 45%, transparent);
+}
+
+.dashboard-soft-panel {
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+  background: color-mix(in srgb, var(--success-soft) 78%, var(--surface));
+}
+
+.dashboard-stat-card {
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--surface) 90%, transparent) !important;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 50%, transparent);
+}
+
+.dashboard-progress-track {
+  background: var(--progress-track) !important;
+}
+
+.dashboard-cashflow-bar {
+  background: linear-gradient(90deg, var(--cashflow-start), var(--cashflow-end)) !important;
+}
+
+.dashboard-danger-panel {
+  border-color: var(--danger-border) !important;
+  background: var(--danger-soft) !important;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--danger-border) 45%, transparent);
+}
+
+.dashboard-primary-action {
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 82%, var(--cashflow-end)) 100%
+  );
+  color: var(--primary-foreground);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+.dashboard-primary-action:hover {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 88%, black) 0%,
+    var(--primary) 100%
+  );
+}
+
+.dashboard-outline-action {
+  border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.dashboard-outline-action:hover {
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--border));
+  background: var(--success-soft);
 }
