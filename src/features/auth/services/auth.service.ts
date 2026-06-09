@@ -28,6 +28,22 @@ type AuthServiceResult<T> =
       status: number;
     };
 
+function validateStrongPassword(password: string): string | null {
+  if (password.length < 8) {
+    return "Password must be at least 8 characters.";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Password must contain at least one uppercase letter.";
+  }
+  if (!/\d/.test(password)) {
+    return "Password must contain at least one number.";
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return "Password must contain at least one special character.";
+  }
+  return null;
+}
+
 function getAppUrl() {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 }
@@ -37,15 +53,25 @@ export async function loginAdmin(
 ): Promise<AuthServiceResult<AuthResponse & { session: { token: string; expiresAt: Date } }>> {
   const admin = await findAdminByEmail(payload.email);
 
-  if (!admin || !(await verifyPassword(payload.password, admin.passwordHash))) {
+  if (!admin) {
     return {
       ok: false,
-      error: "Invalid email or password.",
+      error: "No account found with this email address.",
       status: 401,
     };
   }
 
-  const session = await createAuthSession(admin.id);
+  const passwordValid = await verifyPassword(payload.password, admin.passwordHash);
+
+  if (!passwordValid) {
+    return {
+      ok: false,
+      error: "Wrong password.",
+      status: 401,
+    };
+  }
+
+  const session = await createAuthSession(admin.id, payload.rememberMe);
 
   return {
     ok: true,
@@ -67,10 +93,11 @@ export async function signupAdmin(
     };
   }
 
-  if (payload.password.length < 8) {
+  const passwordError = validateStrongPassword(payload.password);
+  if (passwordError) {
     return {
       ok: false,
-      error: "Password must be at least 8 characters.",
+      error: passwordError,
       status: 400,
     };
   }
@@ -128,10 +155,11 @@ export async function sendAdminPasswordReset(payload: ForgotPasswordPayload) {
 export async function resetAdminPassword(
   payload: ResetPasswordPayload
 ): Promise<AuthServiceResult<{ ok: true }>> {
-  if (payload.password.length < 8) {
+  const passwordError = validateStrongPassword(payload.password);
+  if (passwordError) {
     return {
       ok: false,
-      error: "Password must be at least 8 characters.",
+      error: passwordError,
       status: 400,
     };
   }

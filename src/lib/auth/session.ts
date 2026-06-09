@@ -43,9 +43,10 @@ function getCookieOptions(expiresAt: Date) {
   };
 }
 
-export async function createAuthSession(adminUserId: string) {
+export async function createAuthSession(adminUserId: string, rememberMe = false) {
   const token = randomBytes(32).toString("base64url");
-  const expiresAt = new Date(Date.now() + getSessionDays() * 24 * 60 * 60 * 1000);
+  const sessionDays = rememberMe ? 30 : getSessionDays();
+  const expiresAt = new Date(Date.now() + sessionDays * 24 * 60 * 60 * 1000);
 
   await prisma.authSession.create({
     data: {

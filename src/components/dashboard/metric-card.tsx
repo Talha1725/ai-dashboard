@@ -10,7 +10,7 @@ import type { MetricCardProps } from "@/types/metrics";
 
 export function MetricCard({ title, source, status, children }: MetricCardProps) {
   return (
-    <Card className="border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/70 backdrop-blur transition-shadow hover:shadow-md hover:shadow-slate-200/80">
+    <Card className="border-border/80 bg-surface/90 shadow-sm shadow-shadow-soft/50 backdrop-blur transition-shadow hover:shadow-md hover:shadow-shadow-soft/60">
       <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 pb-4">
         <div className="min-w-0">
           <CardTitle>{title}</CardTitle>

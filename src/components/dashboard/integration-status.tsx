@@ -9,14 +9,14 @@ const statusLabels: Record<DataSourceStatus, string> = {
 };
 
 const statusStyles: Record<DataSourceStatus, string> = {
-  connected: "bg-emerald-50 text-emerald-700",
-  missing_credentials: "bg-amber-50 text-amber-700",
-  failed: "bg-red-50 text-red-700",
+  connected: "bg-success-soft text-success",
+  missing_credentials: "bg-warning-soft text-warning",
+  failed: "bg-danger-soft text-danger",
 };
 
 export function IntegrationStatus({ integrations }: IntegrationStatusProps) {
   return (
-    <Card className="border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/70 backdrop-blur">
+    <Card className="border-border/80 bg-surface/90 shadow-sm shadow-shadow-soft/50 backdrop-blur">
       <CardHeader>
         <CardTitle>Integration Status</CardTitle>
       </CardHeader>
@@ -24,11 +24,11 @@ export function IntegrationStatus({ integrations }: IntegrationStatusProps) {
         {integrations.map((integration) => (
           <div
             key={integration.key}
-            className="flex items-center justify-between gap-4 rounded-md border border-slate-200 bg-slate-50/70 p-3"
+            className="flex items-center justify-between gap-4 rounded-md border border-border bg-surface-soft/70 p-3"
           >
             <div className="min-w-0">
-              <p className="font-medium text-slate-950">{integration.label}</p>
-              <p className="truncate text-xs text-slate-500">
+              <p className="font-medium text-foreground">{integration.label}</p>
+              <p className="truncate text-xs text-text-subtle">
                 {integration.lastUpdated
                   ? `Last updated ${formatSnapshotDate(integration.lastUpdated)}`
                   : integration.message ?? "Waiting for setup"}

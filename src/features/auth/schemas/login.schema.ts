@@ -1,5 +1,9 @@
 import { z } from "zod"
 
+const strongPasswordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
+const strongPasswordMessage =
+  "Password must be at least 8 characters with one uppercase letter, one number, and one special character"
+
 export const loginSchema = z.object({
   email: z
     .string()
@@ -8,8 +12,10 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(1, "Password is required")
-    .min(8, "Password must be at least 8 characters"),
-  rememberMe: z.boolean(),
+    .regex(strongPasswordRegex, strongPasswordMessage),
+  rememberMe: z.boolean().refine((val) => val === true, {
+    message: "Please check the Remember me box to continue",
+  }),
 })
 
 export type LoginInput = z.infer<typeof loginSchema>

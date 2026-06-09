@@ -1,5 +1,9 @@
 import { z } from "zod"
 
+const strongPasswordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
+const strongPasswordMessage =
+  "Password must be at least 8 characters with one uppercase letter, one number, and one special character"
+
 export const signupSchema = z
   .object({
     fullName: z
@@ -13,7 +17,7 @@ export const signupSchema = z
     password: z
       .string()
       .min(1, "Password is required")
-      .min(8, "Password must be at least 8 characters"),
+      .regex(strongPasswordRegex, strongPasswordMessage),
     confirmPassword: z
       .string()
       .min(1, "Please confirm your password"),
