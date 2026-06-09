@@ -12,7 +12,7 @@ export function DeliveriesCard({ deliveries }: DeliveriesCardProps) {
         {deliveries.jobs.map((job) => (
           <div
             key={job.id}
-            className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border border-slate-200 p-3"
+            className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border border-slate-200 bg-slate-50/70 p-3"
           >
             <div className="min-w-0">
               <p className="truncate font-semibold text-slate-950">{job.customer}</p>

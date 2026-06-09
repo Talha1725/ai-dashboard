@@ -65,7 +65,7 @@ export function CashflowUploadButton() {
       />
       <Button
         type="button"
-        variant="outline"
+        variant="default"
         onClick={() => inputRef.current?.click()}
         disabled={isUploading}
       >

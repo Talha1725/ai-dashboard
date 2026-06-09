@@ -14,9 +14,9 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
             className="grid grid-cols-[64px_minmax(0,1fr)_82px] items-center gap-3 sm:grid-cols-[72px_minmax(0,1fr)_92px]"
           >
             <span className="truncate text-sm font-medium text-slate-600">{week.label}</span>
-            <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-3 overflow-hidden rounded-full bg-slate-100 shadow-inner">
               <div
-                className="h-full rounded-full bg-teal-600"
+                className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"
                 style={{ width: `${Math.max((week.amount / maxAmount) * 100, 4)}%` }}
               />
             </div>
