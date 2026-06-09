@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { appToast } from "@/lib/toast";
 import type { ApiErrorResponse, CashflowUploadResponse } from "@/types/cashflow";
 
-export function CashflowUploadButton() {
+export function CashflowUploadButton({ className }: { className?: string }) {
   const router = useRouter();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -66,6 +66,7 @@ export function CashflowUploadButton() {
       <Button
         type="button"
         variant="default"
+        className={className}
         onClick={() => inputRef.current?.click()}
         disabled={isUploading}
       >
