@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum RefreshSource {
@@ -44,4 +45,40 @@ model CashflowUpload {
   weekCount    Int
   parsedWeeks  Json
   uploadedAt   DateTime @default(now())
+}
+
+model AdminUser {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String        @default("Admin")
+  passwordHash String
+  sessions     AuthSession[]
+  passwordResetTokens PasswordResetToken[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model AuthSession {
+  id          String    @id @default(cuid())
+  adminUserId String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  adminUser    AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id          String    @id @default(cuid())
+  adminUserId String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+  adminUser    AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId])
+  @@index([expiresAt])
 }

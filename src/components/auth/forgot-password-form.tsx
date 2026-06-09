@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowLeft, CheckCircle2, Loader2, Mail } from "lucide-react"
+import { requestPasswordReset } from "@/features/auth/api/auth-client"
 import {
   forgotPasswordSchema,
   type ForgotPasswordInput,
@@ -18,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export function ForgotPasswordForm() {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
+  const [formError, setFormError] = React.useState<string | null>(null)
 
   const {
     register,
@@ -33,11 +35,18 @@ export function ForgotPasswordForm() {
 
   const onSubmit = async (data: ForgotPasswordInput) => {
     setIsSubmitting(true)
-    // Mock forgot password - no backend integration
-    console.log("Forgot password attempt:", data)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsSubmitting(false)
-    setIsSuccess(true)
+    setFormError(null)
+
+    try {
+      await requestPasswordReset({
+        email: data.email,
+      })
+      setIsSuccess(true)
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Unable to send reset email.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (isSuccess) {
@@ -86,6 +95,12 @@ export function ForgotPasswordForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {formError && (
+            <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {formError}
+            </p>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

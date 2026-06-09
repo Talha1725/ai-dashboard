@@ -2,68 +2,107 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
-import { signup } from "@/features/auth/api/auth-client"
-import { signupSchema, type SignupInput } from "@/features/auth/schemas/signup.schema"
+import { CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react"
+import { resetPassword } from "@/features/auth/api/auth-client"
+import {
+  resetPasswordSchema,
+  type ResetPasswordInput,
+} from "@/features/auth/schemas/reset-password.schema"
 import { AUTH_ROUTES } from "@/features/auth/constants/auth.constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export function SignupForm() {
-  const router = useRouter()
+export function ResetPasswordForm({ token }: { token: string }) {
   const [showPassword, setShowPassword] = React.useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [isSuccess, setIsSuccess] = React.useState(false)
   const [formError, setFormError] = React.useState<string | null>(null)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignupInput>({
-    resolver: zodResolver(signupSchema),
+  } = useForm<ResetPasswordInput>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      fullName: "",
-      email: "",
       password: "",
       confirmPassword: "",
     },
   })
 
-  const onSubmit = async (data: SignupInput) => {
+  const onSubmit = async (data: ResetPasswordInput) => {
     setIsSubmitting(true)
     setFormError(null)
 
     try {
-      await signup({
-        fullName: data.fullName,
-        email: data.email,
+      await resetPassword({
+        token,
         password: data.password,
         confirmPassword: data.confirmPassword,
       })
-      router.replace(AUTH_ROUTES.dashboard)
-      router.refresh()
+      setIsSuccess(true)
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Unable to create account.")
+      setFormError(error instanceof Error ? error.message : "Unable to reset password.")
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  if (!token) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle>Invalid reset link</CardTitle>
+          <CardDescription>Request a new password reset link to continue.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link
+            href={AUTH_ROUTES.forgotPassword}
+            className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Request reset link
+          </Link>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (isSuccess) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <div className="rounded-full bg-primary/10 p-3">
+              <CheckCircle2 className="h-8 w-8 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Password updated</h3>
+              <p className="text-sm text-muted-foreground">
+                You can now sign in with your new password.
+              </p>
+            </div>
+            <Link
+              href={AUTH_ROUTES.login}
+              className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Back to sign in
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-bold tracking-tight">
-          Create an account
-        </CardTitle>
-        <CardDescription>
-          Enter your details to get started
-        </CardDescription>
+        <CardTitle className="text-2xl font-bold tracking-tight">Reset password</CardTitle>
+        <CardDescription>Enter a new password for your account</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -74,42 +113,12 @@ export function SignupForm() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input
-              id="fullName"
-              type="text"
-              placeholder="John Doe"
-              autoComplete="name"
-              aria-invalid={!!errors.fullName}
-              {...register("fullName")}
-            />
-            {errors.fullName && (
-              <p className="text-sm text-destructive">{errors.fullName.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="name@company.com"
-              autoComplete="email"
-              aria-invalid={!!errors.email}
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">New password</Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Create a password"
+                placeholder="Enter a new password"
                 autoComplete="new-password"
                 aria-invalid={!!errors.password}
                 {...register("password")}
@@ -120,11 +129,7 @@ export function SignupForm() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {errors.password && (
@@ -133,12 +138,12 @@ export function SignupForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Confirm password</Label>
             <div className="relative">
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm your password"
+                placeholder="Confirm your new password"
                 autoComplete="new-password"
                 aria-invalid={!!errors.confirmPassword}
                 {...register("confirmPassword")}
@@ -165,23 +170,13 @@ export function SignupForm() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Creating account...
+                Updating password...
               </>
             ) : (
-              "Create account"
+              "Update password"
             )}
           </Button>
         </form>
-
-        <div className="mt-6 text-center text-sm">
-          Already have an account?{" "}
-          <Link
-            href={AUTH_ROUTES.login}
-            className="font-medium text-primary hover:underline"
-          >
-            Sign in
-          </Link>
-        </div>
       </CardContent>
     </Card>
   )
