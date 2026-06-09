@@ -13,14 +13,14 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
             key={week.label}
             className="grid grid-cols-[64px_minmax(0,1fr)_82px] items-center gap-3 sm:grid-cols-[72px_minmax(0,1fr)_92px]"
           >
-            <span className="truncate text-sm font-medium text-text-soft">{week.label}</span>
-            <div className="h-3 overflow-hidden rounded-full bg-progress-track shadow-inner">
+            <span className="truncate text-sm font-medium text-[color:var(--text-soft)]">{week.label}</span>
+            <div className="dashboard-progress-track h-3 overflow-hidden rounded-full shadow-inner">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-cashflow-start to-cashflow-end"
+                className="dashboard-cashflow-bar h-full rounded-full"
                 style={{ width: `${Math.max((week.amount / maxAmount) * 100, 4)}%` }}
               />
             </div>
-            <span className="truncate text-right text-sm font-semibold text-foreground">
+            <span className="truncate text-right text-sm font-semibold text-[color:var(--foreground)]">
               {formatCurrency(week.amount)}
             </span>
           </div>

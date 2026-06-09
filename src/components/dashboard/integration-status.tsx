@@ -9,14 +9,14 @@ const statusLabels: Record<DataSourceStatus, string> = {
 };
 
 const statusStyles: Record<DataSourceStatus, string> = {
-  connected: "bg-success-soft text-success",
-  missing_credentials: "bg-warning-soft text-warning",
-  failed: "bg-danger-soft text-danger",
+  connected: "bg-[color:var(--success-soft)] text-[color:var(--success)]",
+  missing_credentials: "bg-[color:var(--warning-soft)] text-[color:var(--warning)]",
+  failed: "bg-[color:var(--danger-soft)] text-[color:var(--danger)]",
 };
 
 export function IntegrationStatus({ integrations }: IntegrationStatusProps) {
   return (
-    <Card className="border-border/80 bg-surface/90 shadow-sm shadow-shadow-soft/50 backdrop-blur">
+    <Card className="dashboard-card-surface backdrop-blur">
       <CardHeader>
         <CardTitle>Integration Status</CardTitle>
       </CardHeader>
@@ -24,11 +24,11 @@ export function IntegrationStatus({ integrations }: IntegrationStatusProps) {
         {integrations.map((integration) => (
           <div
             key={integration.key}
-            className="flex items-center justify-between gap-4 rounded-md border border-border bg-surface-soft/70 p-3"
+            className="dashboard-soft-panel flex items-center justify-between gap-4 rounded-md border p-3"
           >
             <div className="min-w-0">
-              <p className="font-medium text-foreground">{integration.label}</p>
-              <p className="truncate text-xs text-text-subtle">
+              <p className="font-medium text-[color:var(--foreground)]">{integration.label}</p>
+              <p className="truncate text-xs text-[color:var(--text-subtle)]">
                 {integration.lastUpdated
                   ? `Last updated ${formatSnapshotDate(integration.lastUpdated)}`
                   : integration.message ?? "Waiting for setup"}
