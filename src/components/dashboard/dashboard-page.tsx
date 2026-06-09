@@ -41,7 +41,7 @@ export function DashboardPage({ snapshot }: DashboardPageProps) {
           <OvertimeCard overtime={snapshot.overtime} />
           <DeliveriesCard deliveries={snapshot.deliveries} />
           <PaymentsCard payments={snapshot.payments} />
-          <IntegrationStatus />
+          <IntegrationStatus integrations={snapshot.integrations} />
         </section>
       </div>
     </main>
