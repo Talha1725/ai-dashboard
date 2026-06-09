@@ -86,12 +86,10 @@ a {
 }
 
 .dashboard-page-bg {
-  background: linear-gradient(
-    135deg,
-    var(--page-gradient-start) 0%,
-    var(--page-gradient-mid) 42%,
-    var(--page-gradient-end) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--page-gradient-start) 0%,
+      var(--page-gradient-mid) 42%,
+      var(--page-gradient-end) 100%);
 }
 
 .dashboard-glass-panel {
@@ -136,21 +134,17 @@ a {
 }
 
 .dashboard-primary-action {
-  background: linear-gradient(
-    135deg,
-    var(--primary) 0%,
-    color-mix(in srgb, var(--primary) 82%, var(--cashflow-end)) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary) 0%,
+      color-mix(in srgb, var(--primary) 82%, var(--cashflow-end)) 100%);
   color: var(--primary-foreground);
   box-shadow: 0 1px 4px color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 .dashboard-primary-action:hover {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--primary) 88%, black) 0%,
-    var(--primary) 100%
-  );
+  background: linear-gradient(135deg,
+      color-mix(in srgb, var(--primary) 88%, black) 0%,
+      var(--primary) 100%);
 }
 
 .dashboard-outline-action {
