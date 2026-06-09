@@ -3,6 +3,7 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuthResponse } from "@/lib/auth/guard";
 import { uploadCashflowFile } from "@/features/dashboard/services/cashflow.service";
+import { CashflowUploadError } from "@/features/dashboard/types/cashflow.types";
 
 export async function uploadCashflowController(request: NextRequest) {
   const { response } = await requireAuthResponse(request);
@@ -18,7 +19,18 @@ export async function uploadCashflowController(request: NextRequest) {
     return NextResponse.json({ error: "Upload a cashflow Excel file." }, { status: 400 });
   }
 
-  const result = await uploadCashflowFile(file);
+  try {
+    const result = await uploadCashflowFile(file);
 
-  return NextResponse.json(result);
+    return NextResponse.json(result);
+  } catch (error) {
+    if (error instanceof CashflowUploadError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
+    return NextResponse.json(
+      { error: "Unable to process the cashflow Excel file." },
+      { status: 500 }
+    );
+  }
 }
