@@ -1,5 +1,6 @@
 import { LogoutButton } from "@/components/auth/logout-button";
 import { CashflowCard } from "@/components/dashboard/cashflow-card";
+import { CashflowUploadButton } from "@/components/dashboard/cashflow-upload-button";
 import { DeliveriesCard } from "@/components/dashboard/deliveries-card";
 import { IntegrationStatus } from "@/components/dashboard/integration-status";
 import { OvertimeCard } from "@/components/dashboard/overtime-card";
@@ -27,7 +28,10 @@ export function DashboardPage({ snapshot }: DashboardPageProps) {
             <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
               Last updated <span className="font-semibold text-slate-950">{lastUpdated}</span>
             </div>
-            <LogoutButton />
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <CashflowUploadButton />
+              <LogoutButton />
+            </div>
           </div>
         </header>
 
