@@ -14,7 +14,7 @@ export const loginSchema = z.object({
     .min(1, "Password is required")
     .regex(strongPasswordRegex, strongPasswordMessage),
   rememberMe: z.boolean().refine((val) => val === true, {
-    message: "Please check the Remember me box to continue",
+    message: "continue with checkbox",
   }),
 })
 
