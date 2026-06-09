@@ -15,8 +15,8 @@ export function DashboardPage({ snapshot }: DashboardPageProps) {
 
   return (
     <main className="dashboard-page-bg min-h-screen">
-      <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-10 2xl:px-12">
-        <header className="dashboard-glass-panel rounded-lg border p-5 backdrop-blur sm:flex sm:items-end sm:justify-between">
+      <div className="mx-auto flex w-full max-w-none flex-col gap-4 px-3 py-4 sm:px-4 sm:py-5 lg:gap-5 lg:px-5 xl:px-6 2xl:px-8">
+        <header className="dashboard-glass-panel rounded-lg border p-4 backdrop-blur sm:p-5 lg:flex lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[color:var(--primary)]">
               Daily health check
