@@ -181,9 +181,9 @@ export function SignupForm() {
           Already have an account?{" "}
           <Link
             href={AUTH_ROUTES.login}
-            className="font-medium text-primary hover:underline"
-          >
-            Sign in
+className="font-medium text-blue-600 hover:underline"
+            >
+              Sign in
           </Link>
         </div>
       </CardContent>

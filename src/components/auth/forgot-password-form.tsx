@@ -136,7 +136,7 @@ export function ForgotPasswordForm() {
           <div className="text-center">
             <Link
               href={AUTH_ROUTES.login}
-              className="inline-flex items-center text-sm font-medium text-primary hover:underline"
+              className="inline-flex items-center text-sm font-medium text-blue-600 hover:underline"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
               Back to sign in

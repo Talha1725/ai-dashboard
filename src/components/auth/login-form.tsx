@@ -124,7 +124,7 @@ export function LoginForm() {
                 <input
                   id="rememberMe"
                   type="checkbox"
-                  className="h-4 w-4 rounded border-input accent-primary"
+                  className="h-4 w-4 rounded border-input accent-blue-600"
                   {...register("rememberMe")}
                 />
                 <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
@@ -137,7 +137,7 @@ export function LoginForm() {
             </div>
             <Link
               href={AUTH_ROUTES.forgotPassword}
-              className="text-sm font-medium text-primary hover:underline"
+              className="text-sm font-medium text-blue-600 hover:underline"
             >
               Forgot password?
             </Link>
@@ -159,9 +159,9 @@ export function LoginForm() {
           Don&apos;t have an account?{" "}
           <Link
             href={AUTH_ROUTES.signUp}
-            className="font-medium text-primary hover:underline"
-          >
-            Sign up
+className="font-medium text-blue-600 hover:underline"
+            >
+              Sign up
           </Link>
         </div>
       </CardContent>
