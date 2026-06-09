@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { AUTH_ROUTES } from "@/features/auth/constants/auth.constants"
+import { appToast } from "@/lib/toast"
 
 export function LogoutButton() {
   const router = useRouter()
@@ -14,10 +15,19 @@ export function LogoutButton() {
     setIsLoggingOut(true)
 
     try {
-      await fetch("/api/auth/logout", {
+      const response = await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",
       })
+
+      if (!response.ok) {
+        throw new Error("Unable to sign out.")
+      }
+
+      appToast.success("Signed out successfully.")
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to sign out."
+      appToast.error("Sign out failed", { description: message })
     } finally {
       router.replace(AUTH_ROUTES.login)
       router.refresh()
