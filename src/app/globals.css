@@ -82,3 +82,75 @@ button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+.dashboard-page-bg {
+  background: linear-gradient(
+    135deg,
+    var(--page-gradient-start) 0%,
+    var(--page-gradient-mid) 42%,
+    var(--page-gradient-end) 100%
+  );
+}
+
+.dashboard-glass-panel {
+  border-color: color-mix(in srgb, var(--surface) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 55%, transparent);
+}
+
+.dashboard-card-surface {
+  border-color: color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 50%, transparent);
+}
+
+.dashboard-card-surface:hover {
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--shadow-soft) 45%, transparent);
+}
+
+.dashboard-soft-panel {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--surface-soft) 74%, transparent);
+}
+
+.dashboard-stat-card {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 50%, transparent);
+}
+
+.dashboard-progress-track {
+  background: var(--progress-track);
+}
+
+.dashboard-cashflow-bar {
+  background: linear-gradient(90deg, var(--cashflow-start), var(--cashflow-end));
+}
+
+.dashboard-danger-panel {
+  border-color: var(--danger-border);
+  background: var(--surface);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--danger-border) 45%, transparent);
+}
+
+.dashboard-primary-action {
+  background: var(--foreground);
+  color: var(--background);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 70%, transparent);
+}
+
+.dashboard-primary-action:hover {
+  background: var(--text-soft);
+}
+
+.dashboard-outline-action {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 55%, transparent);
+}
+
+.dashboard-outline-action:hover {
+  border-color: var(--text-subtle);
+  background: var(--surface-soft);
+}

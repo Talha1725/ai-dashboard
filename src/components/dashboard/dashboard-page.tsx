@@ -14,20 +14,20 @@ export function DashboardPage({ snapshot }: DashboardPageProps) {
   const lastUpdated = formatSnapshotDate(snapshot.refreshedAt);
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(135deg,var(--page-gradient-start)_0%,var(--page-gradient-mid)_42%,var(--page-gradient-end)_100%)]">
-      <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-10 2xl:px-12">
-        <header className="rounded-lg border border-surface/80 bg-surface/80 p-5 shadow-sm shadow-shadow-soft/50 backdrop-blur sm:flex sm:items-end sm:justify-between">
+    <main className="dashboard-page-bg min-h-screen">
+      <div className="mx-auto flex w-full max-w-none flex-col gap-4 px-3 py-4 sm:px-4 sm:py-5 lg:gap-5 lg:px-5 xl:px-6 2xl:px-8">
+        <header className="dashboard-glass-panel rounded-lg border p-4 backdrop-blur sm:p-5 lg:flex lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-primary">
+            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[color:var(--primary)]">
               Daily health check
             </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-normal text-foreground sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-bold tracking-normal text-[color:var(--foreground)] sm:text-4xl">
               Business Intelligence Dashboard
             </h1>
           </div>
           <div className="mt-5 flex flex-col gap-3 sm:mt-0 sm:items-end">
-            <div className="rounded-lg border border-border bg-surface-soft px-4 py-3 text-sm text-text-soft">
-              Last updated <span className="font-semibold text-foreground">{lastUpdated}</span>
+            <div className="dashboard-soft-panel rounded-lg border px-4 py-3 text-sm text-[color:var(--text-soft)]">
+              Last updated <span className="font-semibold text-[color:var(--foreground)]">{lastUpdated}</span>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <CashflowUploadButton />

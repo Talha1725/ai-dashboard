@@ -10,11 +10,11 @@ const badgeVariants = cva(
       variant: {
         default: "border-transparent bg-primary text-primary-foreground",
         secondary: "border-transparent bg-secondary text-secondary-foreground",
-        destructive: "border-transparent bg-destructive text-primary-foreground",
-        outline: "border-border text-foreground",
-        good: "border-success-border bg-success-soft text-success",
-        warning: "border-warning-border bg-warning-soft text-warning",
-        alert: "border-danger-border bg-danger-soft text-danger",
+        destructive: "border-transparent bg-[color:var(--destructive)] text-[color:var(--primary-foreground)]",
+        outline: "border-[color:var(--border)] text-[color:var(--foreground)]",
+        good: "border-[color:var(--success-border)] bg-[color:var(--success-soft)] text-[color:var(--success)]",
+        warning: "border-[color:var(--warning-border)] bg-[color:var(--warning-soft)] text-[color:var(--warning)]",
+        alert: "border-[color:var(--danger-border)] bg-[color:var(--danger-soft)] text-[color:var(--danger)]",
       },
     },
     defaultVariants: {
