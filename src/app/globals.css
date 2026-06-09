@@ -5,7 +5,7 @@
   --foreground: #1b1f23;
   --card: #ffffff;
   --card-foreground: #1b1f23;
-  --primary: #0f766e;
+  --primary: #000000;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
@@ -48,6 +48,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
   --color-surface: var(--surface);
   --color-surface-soft: var(--surface-soft);
   --color-page-gradient-start: var(--page-gradient-start);
