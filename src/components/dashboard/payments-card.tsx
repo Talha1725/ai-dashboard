@@ -9,15 +9,15 @@ export function PaymentsCard({ payments }: PaymentsCardProps) {
         {payments.alerts.map((alert) => (
           <div
             key={`${alert.customer}-${alert.amount}-${alert.due}`}
-            className="rounded-md border border-red-200 bg-white p-3 shadow-sm shadow-red-100/60"
+            className="rounded-md border border-danger-border bg-surface p-3 shadow-sm shadow-danger-border/40"
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="min-w-0 font-semibold text-slate-950">{alert.customer}</p>
-              <p className="shrink-0 text-sm font-bold text-red-700">
+              <p className="min-w-0 font-semibold text-foreground">{alert.customer}</p>
+              <p className="shrink-0 text-sm font-bold text-danger">
                 {formatCurrency(alert.amount)}
               </p>
             </div>
-            <p className="mt-1 text-sm font-medium capitalize text-red-700">
+            <p className="mt-1 text-sm font-medium capitalize text-danger">
               {alert.priority} · {alert.due}
             </p>
           </div>

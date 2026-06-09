@@ -14,20 +14,20 @@ export function DashboardPage({ snapshot }: DashboardPageProps) {
   const lastUpdated = formatSnapshotDate(snapshot.refreshedAt);
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#d9f3ed_0,#f7fafc_34%,#eef3f8_100%)]">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
-        <header className="rounded-lg border border-white/80 bg-white/80 p-5 shadow-sm shadow-slate-200/70 backdrop-blur sm:flex sm:items-end sm:justify-between">
+    <main className="min-h-screen bg-[linear-gradient(135deg,var(--page-gradient-start)_0%,var(--page-gradient-mid)_42%,var(--page-gradient-end)_100%)]">
+      <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-10 2xl:px-12">
+        <header className="rounded-lg border border-surface/80 bg-surface/80 p-5 shadow-sm shadow-shadow-soft/50 backdrop-blur sm:flex sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-teal-700">
+            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-primary">
               Daily health check
             </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-normal text-slate-950 sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-bold tracking-normal text-foreground sm:text-4xl">
               Business Intelligence Dashboard
             </h1>
           </div>
           <div className="mt-5 flex flex-col gap-3 sm:mt-0 sm:items-end">
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Last updated <span className="font-semibold text-slate-950">{lastUpdated}</span>
+            <div className="rounded-lg border border-border bg-surface-soft px-4 py-3 text-sm text-text-soft">
+              Last updated <span className="font-semibold text-foreground">{lastUpdated}</span>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <CashflowUploadButton />
@@ -38,7 +38,7 @@ export function DashboardPage({ snapshot }: DashboardPageProps) {
 
         <DashboardOverview snapshot={snapshot} />
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:gap-5">
           <CashflowCard cashflow={snapshot.cashflow} />
           <ProfitCard profit={snapshot.profit} />
           <OvertimeCard overtime={snapshot.overtime} />

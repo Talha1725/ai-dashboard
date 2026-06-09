@@ -12,15 +12,15 @@ export function DeliveriesCard({ deliveries }: DeliveriesCardProps) {
         {deliveries.jobs.map((job) => (
           <div
             key={job.id}
-            className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border border-slate-200 bg-slate-50/70 p-3"
+            className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border border-border bg-surface-soft/70 p-3"
           >
             <div className="min-w-0">
-              <p className="truncate font-semibold text-slate-950">{job.customer}</p>
-              <p className="truncate text-sm text-slate-500">
+              <p className="truncate font-semibold text-foreground">{job.customer}</p>
+              <p className="truncate text-sm text-text-subtle">
                 {job.id} · {job.stage}
               </p>
             </div>
-            <p className="text-right text-sm font-semibold text-amber-700">{job.due}</p>
+            <p className="text-right text-sm font-semibold text-warning">{job.due}</p>
           </div>
         ))}
       </div>
