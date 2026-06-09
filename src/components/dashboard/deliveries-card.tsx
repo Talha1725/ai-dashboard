@@ -8,11 +8,11 @@ export function DeliveriesCard({ deliveries }: DeliveriesCardProps) {
       source={deliveries.source}
       status={deliveries.status}
     >
-      <div className="space-y-3">
+      <div className="min-w-0 space-y-3">
         {deliveries.jobs.map((job) => (
           <div
             key={job.id}
-            className="dashboard-soft-panel grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border p-3"
+            className="dashboard-soft-panel grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border p-3"
           >
             <div className="min-w-0">
               <p className="truncate font-semibold text-[color:var(--foreground)]">{job.customer}</p>

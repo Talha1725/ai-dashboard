@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { AUTH_ROUTES } from "@/features/auth/constants/auth.constants"
 import { appToast } from "@/lib/toast"
 
-export function LogoutButton() {
+export function LogoutButton({ className }: { className?: string }) {
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
 
@@ -35,7 +35,7 @@ export function LogoutButton() {
   }
 
   return (
-    <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut}>
+    <Button variant="outline" className={className} onClick={handleLogout} disabled={isLoggingOut}>
       <LogOut className="h-4 w-4" />
       {isLoggingOut ? "Signing out..." : "Logout"}
     </Button>

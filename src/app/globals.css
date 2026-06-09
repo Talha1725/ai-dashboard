@@ -5,7 +5,7 @@
   --foreground: #1b1f23;
   --card: #ffffff;
   --card-foreground: #1b1f23;
-  --primary: #0f766e;
+  --primary: #000000;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
@@ -48,6 +48,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
   --color-surface: var(--surface);
   --color-surface-soft: var(--surface-soft);
   --color-page-gradient-start: var(--page-gradient-start);
@@ -109,8 +111,8 @@ a {
 }
 
 .dashboard-soft-panel {
-  border-color: var(--border) !important;
-  background: color-mix(in srgb, var(--surface-soft) 78%, transparent) !important;
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+  background: color-mix(in srgb, var(--success-soft) 78%, var(--surface));
 }
 
 .dashboard-stat-card {
@@ -134,23 +136,31 @@ a {
 }
 
 .dashboard-primary-action {
-  background: var(--foreground);
-  color: var(--background);
-  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 70%, transparent);
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 82%, var(--cashflow-end)) 100%
+  );
+  color: var(--primary-foreground);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 .dashboard-primary-action:hover {
-  background: var(--text-soft);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 88%, black) 0%,
+    var(--primary) 100%
+  );
 }
 
 .dashboard-outline-action {
-  border-color: var(--border);
+  border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
   background: var(--surface);
-  color: var(--foreground);
-  box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 55%, transparent);
+  color: var(--primary);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--primary) 14%, transparent);
 }
 
 .dashboard-outline-action:hover {
-  border-color: var(--text-subtle);
-  background: var(--surface-soft);
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--border));
+  background: var(--success-soft);
 }
