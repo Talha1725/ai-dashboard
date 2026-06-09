@@ -4,6 +4,32 @@ export type { MetricSnapshot, MetricStatus } from "@/types/metrics";
 
 export const metricSnapshot: MetricSnapshot = {
   refreshedAt: "2026-06-08T08:25:00.000Z",
+  integrations: [
+    {
+      key: "myob",
+      label: "MYOB",
+      status: "missing_credentials",
+      message: "Credentials pending",
+    },
+    {
+      key: "connect_team",
+      label: "Connect Team",
+      status: "missing_credentials",
+      message: "Credentials pending",
+    },
+    {
+      key: "internal_app",
+      label: "Internal app",
+      status: "missing_credentials",
+      message: "API details pending",
+    },
+    {
+      key: "excel_upload",
+      label: "Excel upload",
+      status: "connected",
+      lastUpdated: "2026-06-08T08:25:00.000Z",
+    },
+  ],
   cashflow: {
     status: "good",
     source: "Excel upload",

@@ -1,6 +1,16 @@
 import type { ReactNode } from "react";
 
 export type MetricStatus = "good" | "warning" | "alert";
+export type DataSourceStatus = "connected" | "missing_credentials" | "failed";
+export type DataSourceKey = "myob" | "connect_team" | "internal_app" | "excel_upload";
+
+export type DataSourceHealth = {
+  key: DataSourceKey;
+  label: string;
+  status: DataSourceStatus;
+  lastUpdated?: string;
+  message?: string;
+};
 
 export type CashflowWeek = {
   label: string;
@@ -23,6 +33,7 @@ export type PaymentAlert = {
 
 export type MetricSnapshot = {
   refreshedAt: string;
+  integrations: DataSourceHealth[];
   cashflow: {
     status: MetricStatus;
     source: "Excel upload";
@@ -84,4 +95,12 @@ export type DeliveriesCardProps = {
 
 export type PaymentsCardProps = {
   payments: MetricSnapshot["payments"];
+};
+
+export type IntegrationStatusProps = {
+  integrations: DataSourceHealth[];
+};
+
+export type DashboardOverviewProps = {
+  snapshot: MetricSnapshot;
 };

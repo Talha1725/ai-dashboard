@@ -9,6 +9,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { login } from "@/features/auth/api/auth-client"
 import { loginSchema, type LoginInput } from "@/features/auth/schemas/login.schema"
 import { AUTH_ROUTES } from "@/features/auth/constants/auth.constants"
+import { appToast } from "@/lib/toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -41,11 +42,15 @@ export function LoginForm() {
       await login({
         email: data.email,
         password: data.password,
+        rememberMe: data.rememberMe,
       })
+      appToast.success("Signed in successfully.")
       router.replace(AUTH_ROUTES.dashboard)
       router.refresh()
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Unable to sign in.")
+      const message = error instanceof Error ? error.message : "Unable to sign in."
+      setFormError(message)
+      appToast.error("Sign in failed", { description: message })
     } finally {
       setIsSubmitting(false)
     }

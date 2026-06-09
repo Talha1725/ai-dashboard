@@ -11,10 +11,10 @@ export function OvertimeCard({ overtime }: OvertimeCardProps) {
         <div
           className="grid size-32 shrink-0 place-items-center rounded-full"
           style={{
-            background: `conic-gradient(#d97706 ${percentage * 3.6}deg, #f1f5f9 0deg)`,
+            background: `conic-gradient(#f59e0b ${percentage * 3.6}deg, #eef2f7 0deg)`,
           }}
         >
-          <div className="grid size-24 place-items-center rounded-full bg-white text-center">
+          <div className="grid size-24 place-items-center rounded-full bg-white text-center shadow-inner">
             <div>
               <div className="text-3xl font-bold text-slate-950">{overtime.hours}</div>
               <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">

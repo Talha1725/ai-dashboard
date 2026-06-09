@@ -11,6 +11,7 @@ import {
   type ResetPasswordInput,
 } from "@/features/auth/schemas/reset-password.schema"
 import { AUTH_ROUTES } from "@/features/auth/constants/auth.constants"
+import { appToast } from "@/lib/toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -45,9 +46,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
         password: data.password,
         confirmPassword: data.confirmPassword,
       })
+      appToast.success("Password updated successfully.")
       setIsSuccess(true)
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Unable to reset password.")
+      const message = error instanceof Error ? error.message : "Unable to reset password."
+      setFormError(message)
+      appToast.error("Password reset failed", { description: message })
     } finally {
       setIsSubmitting(false)
     }
