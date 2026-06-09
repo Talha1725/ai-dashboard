@@ -36,14 +36,14 @@ export function DashboardOverview({ snapshot }: DashboardOverviewProps) {
   ];
 
   return (
-    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid w-full min-w-0 grid-cols-1 justify-items-stretch gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => {
         const Icon = stat.icon;
 
         return (
           <div
             key={stat.label}
-            className="dashboard-stat-card rounded-lg border p-4 backdrop-blur"
+            className="dashboard-stat-card w-full min-w-0 max-w-full rounded-lg border p-4 backdrop-blur"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
