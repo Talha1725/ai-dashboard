@@ -119,16 +119,21 @@ export function LoginForm() {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <input
-                id="rememberMe"
-                type="checkbox"
-                className="h-4 w-4 rounded border-input accent-primary"
-                {...register("rememberMe")}
-              />
-              <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
-                Remember me
-              </Label>
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="rememberMe"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-input accent-primary"
+                  {...register("rememberMe")}
+                />
+                <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
+                  Remember me
+                </Label>
+              </div>
+              {errors.rememberMe && (
+                <p className="text-sm text-destructive">{errors.rememberMe.message}</p>
+              )}
             </div>
             <Link
               href={AUTH_ROUTES.forgotPassword}
