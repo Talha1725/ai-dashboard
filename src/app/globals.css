@@ -93,14 +93,14 @@ a {
 }
 
 .dashboard-glass-panel {
-  border-color: color-mix(in srgb, var(--surface) 80%, transparent);
-  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--surface) 88%, transparent) !important;
   box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 55%, transparent);
 }
 
 .dashboard-card-surface {
-  border-color: color-mix(in srgb, var(--border) 80%, transparent);
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--surface) 94%, transparent) !important;
   box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 50%, transparent);
 }
 
@@ -109,27 +109,27 @@ a {
 }
 
 .dashboard-soft-panel {
-  border-color: var(--border);
-  background: color-mix(in srgb, var(--surface-soft) 74%, transparent);
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent) !important;
 }
 
 .dashboard-stat-card {
-  border-color: var(--border);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--surface) 90%, transparent) !important;
   box-shadow: 0 1px 4px color-mix(in srgb, var(--shadow-soft) 50%, transparent);
 }
 
 .dashboard-progress-track {
-  background: var(--progress-track);
+  background: var(--progress-track) !important;
 }
 
 .dashboard-cashflow-bar {
-  background: linear-gradient(90deg, var(--cashflow-start), var(--cashflow-end));
+  background: linear-gradient(90deg, var(--cashflow-start), var(--cashflow-end)) !important;
 }
 
 .dashboard-danger-panel {
-  border-color: var(--danger-border);
-  background: var(--surface);
+  border-color: var(--danger-border) !important;
+  background: var(--danger-soft) !important;
   box-shadow: 0 1px 4px color-mix(in srgb, var(--danger-border) 45%, transparent);
 }
 
