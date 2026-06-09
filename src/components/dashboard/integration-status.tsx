@@ -16,7 +16,7 @@ const statusStyles: Record<DataSourceStatus, string> = {
 
 export function IntegrationStatus({ integrations }: IntegrationStatusProps) {
   return (
-    <Card className="dashboard-card-surface backdrop-blur">
+    <Card className="dashboard-card-surface overflow-hidden backdrop-blur">
       <CardHeader>
         <CardTitle>Integration Status</CardTitle>
       </CardHeader>
@@ -24,7 +24,7 @@ export function IntegrationStatus({ integrations }: IntegrationStatusProps) {
         {integrations.map((integration) => (
           <div
             key={integration.key}
-            className="dashboard-soft-panel flex items-center justify-between gap-4 rounded-md border p-3"
+            className="dashboard-soft-panel flex min-w-0 items-center justify-between gap-3 rounded-md border p-3"
           >
             <div className="min-w-0">
               <p className="font-medium text-[color:var(--foreground)]">{integration.label}</p>
@@ -35,7 +35,7 @@ export function IntegrationStatus({ integrations }: IntegrationStatusProps) {
               </p>
             </div>
             <span
-              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[integration.status]}`}
+              className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold sm:px-3 ${statusStyles[integration.status]}`}
             >
               {statusLabels[integration.status]}
             </span>

@@ -7,16 +7,16 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
 
   return (
     <MetricCard title="Cashflow Forecast" source={cashflow.source} status={cashflow.status}>
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-4">
         {cashflow.weeks.map((week) => (
           <div
             key={week.label}
-            className="grid grid-cols-[64px_minmax(0,1fr)_82px] items-center gap-3 sm:grid-cols-[72px_minmax(0,1fr)_92px]"
+            className="grid min-w-0 grid-cols-[56px_minmax(64px,1fr)_76px] items-center gap-2 sm:grid-cols-[72px_minmax(0,1fr)_92px] sm:gap-3"
           >
             <span className="truncate text-sm font-medium text-[color:var(--text-soft)]">{week.label}</span>
-            <div className="dashboard-progress-track h-3 overflow-hidden rounded-full shadow-inner">
+            <div className="dashboard-progress-track min-w-0 overflow-hidden rounded-full shadow-inner">
               <div
-                className="dashboard-cashflow-bar h-full rounded-full"
+                className="dashboard-cashflow-bar h-3 rounded-full"
                 style={{ width: `${Math.max((week.amount / maxAmount) * 100, 4)}%` }}
               />
             </div>
