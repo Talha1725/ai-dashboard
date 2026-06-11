@@ -16,7 +16,7 @@ export async function uploadCashflowController(request: NextRequest) {
   const file = formData.get("file");
 
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: "Upload a cashflow Excel file." }, { status: 400 });
+    return NextResponse.json({ error: "Upload a cashflow Excel or PDF file." }, { status: 400 });
   }
 
   try {
@@ -29,7 +29,7 @@ export async function uploadCashflowController(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: "Unable to process the cashflow Excel file." },
+      { error: "Unable to process the cashflow file." },
       { status: 500 }
     );
   }

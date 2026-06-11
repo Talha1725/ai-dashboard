@@ -59,7 +59,7 @@ export function CashflowUploadButton({ className }: { className?: string }) {
       <input
         ref={inputRef}
         type="file"
-        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+        accept=".xlsx,.xls,.pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/pdf"
         className="hidden"
         onChange={handleFileChange}
       />

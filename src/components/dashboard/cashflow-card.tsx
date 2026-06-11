@@ -11,9 +11,11 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
         {cashflow.weeks.map((week) => (
           <div
             key={week.label}
-            className="grid min-w-0 grid-cols-[56px_minmax(64px,1fr)_76px] items-center gap-2 sm:grid-cols-[72px_minmax(0,1fr)_92px] sm:gap-3"
+            className="grid min-w-0 grid-cols-[minmax(108px,auto)_minmax(64px,1fr)_76px] items-center gap-2 sm:grid-cols-[minmax(128px,auto)_minmax(0,1fr)_92px] sm:gap-3"
           >
-            <span className="truncate text-sm font-medium text-[color:var(--text-soft)]">{week.label}</span>
+            <span className="text-sm font-medium leading-snug text-[color:var(--text-soft)]">
+              {week.label}
+            </span>
             <div className="dashboard-progress-track min-w-0 overflow-hidden rounded-full shadow-inner">
               <div
                 className="dashboard-cashflow-bar h-3 rounded-full"
