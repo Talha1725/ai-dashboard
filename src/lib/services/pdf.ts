@@ -1,5 +1,22 @@
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { ParsedCashflowWeek } from "@/lib/services/excel";
+
+let isPdfWorkerConfigured = false;
+
+function configurePdfWorker() {
+  if (isPdfWorkerConfigured) {
+    return;
+  }
+
+  const require = createRequire(import.meta.url);
+  const workerPath = require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
+  const workerData = readFileSync(workerPath).toString("base64");
+
+  pdfjs.GlobalWorkerOptions.workerSrc = `data:text/javascript;base64,${workerData}`;
+  isPdfWorkerConfigured = true;
+}
 
 function parseAmount(value: string) {
   const normalized = value.replace(/[$,\s]/g, "");
@@ -54,12 +71,13 @@ function parseCashflowText(text: string): ParsedCashflowWeek[] {
 }
 
 export async function parseCashflowPdf(buffer: Buffer): Promise<ParsedCashflowWeek[]> {
+  configurePdfWorker();
+
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(buffer),
-    disableWorker: true,
     isOffscreenCanvasSupported: false,
     useWorkerFetch: false,
-  } as unknown as Parameters<typeof pdfjs.getDocument>[0]);
+  });
   const document = await loadingTask.promise;
 
   try {
