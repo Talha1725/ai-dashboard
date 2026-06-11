@@ -1,11 +1,12 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { ParsedCashflowWeek } from "@/lib/services/excel";
 
 let isPdfWorkerConfigured = false;
 
-function configurePdfWorker() {
+type PdfJs = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
+
+function configurePdfWorker(pdfjs: PdfJs) {
   if (isPdfWorkerConfigured) {
     return;
   }
@@ -71,7 +72,9 @@ function parseCashflowText(text: string): ParsedCashflowWeek[] {
 }
 
 export async function parseCashflowPdf(buffer: Buffer): Promise<ParsedCashflowWeek[]> {
-  configurePdfWorker();
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
+  configurePdfWorker(pdfjs);
 
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(buffer),
