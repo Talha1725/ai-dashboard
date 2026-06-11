@@ -6,6 +6,64 @@ let isPdfWorkerConfigured = false;
 
 type PdfJs = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
 
+class ServerDOMMatrix {
+  a = 1;
+  b = 0;
+  c = 0;
+  d = 1;
+  e = 0;
+  f = 0;
+  is2D = true;
+  isIdentity = true;
+
+  constructor(init?: string | number[]) {
+    if (Array.isArray(init) && init.length >= 6) {
+      [this.a, this.b, this.c, this.d, this.e, this.f] = init;
+      this.isIdentity =
+        this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.e === 0 && this.f === 0;
+    }
+  }
+
+  multiplySelf() {
+    return this;
+  }
+
+  preMultiplySelf() {
+    return this;
+  }
+
+  translateSelf() {
+    return this;
+  }
+
+  scaleSelf() {
+    return this;
+  }
+
+  rotateSelf() {
+    return this;
+  }
+
+  invertSelf() {
+    return this;
+  }
+
+  transformPoint(point: { x?: number; y?: number }) {
+    return {
+      x: point.x ?? 0,
+      y: point.y ?? 0,
+      z: 0,
+      w: 1,
+    };
+  }
+}
+
+function ensurePdfServerGlobals() {
+  if (!("DOMMatrix" in globalThis)) {
+    Object.assign(globalThis, { DOMMatrix: ServerDOMMatrix });
+  }
+}
+
 function configurePdfWorker(pdfjs: PdfJs) {
   if (isPdfWorkerConfigured) {
     return;
@@ -72,6 +130,8 @@ function parseCashflowText(text: string): ParsedCashflowWeek[] {
 }
 
 export async function parseCashflowPdf(buffer: Buffer): Promise<ParsedCashflowWeek[]> {
+  ensurePdfServerGlobals();
+
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
   configurePdfWorker(pdfjs);
