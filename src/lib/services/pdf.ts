@@ -1,22 +1,5 @@
-import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
-import { PDFParse } from "pdf-parse";
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { ParsedCashflowWeek } from "@/lib/services/excel";
-
-let isWorkerConfigured = false;
-
-function configurePdfWorker() {
-  if (isWorkerConfigured) {
-    return;
-  }
-
-  const require = createRequire(import.meta.url);
-  const workerPath = require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
-  const workerData = readFileSync(workerPath).toString("base64");
-
-  PDFParse.setWorker(`data:text/javascript;base64,${workerData}`);
-  isWorkerConfigured = true;
-}
 
 function parseAmount(value: string) {
   const normalized = value.replace(/[$,\s]/g, "");
@@ -40,6 +23,18 @@ function parseCashflowText(text: string): ParsedCashflowWeek[] {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
+  const forecastLine = lines.find((line) => getWeekDates(line).length >= 4);
+
+  if (forecastLine) {
+    const forecastDates = getWeekDates(forecastLine);
+    const forecastAmounts = getNumbers(forecastLine).slice(-forecastDates.length);
+
+    return forecastAmounts.slice(0, 4).map((amount, index) => ({
+      label: forecastDates[index] ? `Week ending ${forecastDates[index]}` : `Week ${index + 1}`,
+      amount,
+    }));
+  }
+
   const dates = getWeekDates(text);
   const bankBalanceLine = lines.find((line) => /^bank balance\b/i.test(line));
   const currentBankBalance = bankBalanceLine ? getNumbers(bankBalanceLine)[0] : null;
@@ -59,13 +54,25 @@ function parseCashflowText(text: string): ParsedCashflowWeek[] {
 }
 
 export async function parseCashflowPdf(buffer: Buffer): Promise<ParsedCashflowWeek[]> {
-  configurePdfWorker();
-
-  const parser = new PDFParse({ data: buffer });
+  const loadingTask = pdfjs.getDocument({
+    data: new Uint8Array(buffer),
+    disableWorker: true,
+    isOffscreenCanvasSupported: false,
+    useWorkerFetch: false,
+  } as unknown as Parameters<typeof pdfjs.getDocument>[0]);
+  const document = await loadingTask.promise;
 
   try {
-    const result = await parser.getText();
-    const weeks = parseCashflowText(result.text);
+    const pageTexts = await Promise.all(
+      Array.from({ length: document.numPages }, async (_, index) => {
+        const page = await document.getPage(index + 1);
+        const content = await page.getTextContent();
+        page.cleanup();
+
+        return content.items.map((item) => ("str" in item ? item.str : "")).join(" ");
+      })
+    );
+    const weeks = parseCashflowText(pageTexts.join("\n"));
 
     if (weeks.length === 0) {
       throw new Error("No cashflow week values could be parsed from the PDF.");
@@ -73,6 +80,6 @@ export async function parseCashflowPdf(buffer: Buffer): Promise<ParsedCashflowWe
 
     return weeks;
   } finally {
-    await parser.destroy();
+    await loadingTask.destroy();
   }
 }
