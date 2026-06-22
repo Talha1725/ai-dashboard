@@ -8,6 +8,7 @@ import type {
 
 const JOBS_TABLE = "jobs";
 const JOBS_ACTION = "list";
+const JOBS_RECORD_LIMIT = 100;
 const MAX_DELIVERY_JOBS = 6;
 const DELIVERY_WINDOW_DAYS = 7;
 const API_TIMEOUT_MS = 10000;
@@ -28,6 +29,8 @@ function getJobsUrl(baseUrl: string) {
 
   url.searchParams.set("table", JOBS_TABLE);
   url.searchParams.set("action", JOBS_ACTION);
+  url.searchParams.set("records", String(JOBS_RECORD_LIMIT));
+  url.searchParams.set("skip", "0");
 
   return url;
 }
