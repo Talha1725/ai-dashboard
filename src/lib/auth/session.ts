@@ -1,5 +1,6 @@
 import "server-only";
 
+import { Prisma } from "@prisma/client";
 import { createHmac, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import type { NextRequest, NextResponse } from "next/server";
@@ -31,6 +32,18 @@ function getSessionSecret() {
 
 function hashSessionToken(token: string) {
   return createHmac("sha256", getSessionSecret()).update(token).digest("hex");
+}
+
+function isPrismaConnectionError(error: unknown) {
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    return true;
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    return error.code === "P1001" || error.code === "P2024";
+  }
+
+  return false;
 }
 
 function getCookieOptions(expiresAt: Date) {
@@ -81,29 +94,39 @@ async function verifySessionToken(token?: string): Promise<AuthResult> {
     return { authenticated: false };
   }
 
-  const tokenHash = hashSessionToken(token);
-  const session = await prisma.authSession.findUnique({
-    where: { tokenHash },
-    include: { adminUser: true },
-  });
-
-  if (!session) {
-    return { authenticated: false };
-  }
-
-  if (session.expiresAt <= new Date()) {
-    await prisma.authSession.delete({
-      where: { id: session.id },
+  try {
+    const tokenHash = hashSessionToken(token);
+    const session = await prisma.authSession.findUnique({
+      where: { tokenHash },
+      include: { adminUser: true },
     });
 
+    if (!session) {
+      return { authenticated: false };
+    }
+
+    if (session.expiresAt <= new Date()) {
+      await prisma.authSession.delete({
+        where: { id: session.id },
+      });
+
+      return { authenticated: false };
+    }
+
+    return {
+      authenticated: true,
+      sessionId: session.id,
+      user: toAuthUser(session.adminUser),
+    };
+  } catch (error) {
+    if (!isPrismaConnectionError(error)) {
+      throw error;
+    }
+
+    console.warn("Unable to verify auth session because the database is unavailable.");
+
     return { authenticated: false };
   }
-
-  return {
-    authenticated: true,
-    sessionId: session.id,
-    user: toAuthUser(session.adminUser),
-  };
 }
 
 export async function verifySessionFromRequest(request: NextRequest): Promise<AuthResult> {

@@ -1,8 +1,10 @@
+import { Prisma, RefreshSource, RefreshStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { metricSnapshot } from "@/lib/metrics";
 import { fetchConnectTeamMetrics } from "@/lib/connectors/connect-team";
-import { fetchInternalAppMetrics } from "@/lib/connectors/internal-app";
+import { fetchInternalAppMetricsResult } from "@/lib/connectors/internal-app";
 import { fetchMyobMetrics } from "@/lib/connectors/myob";
+import type { InternalAppFetchResult } from "@/types/internal-app";
 import type { DataSourceHealth, MetricSnapshot } from "@/types/metrics";
 
 function hasMyobCredentials() {
@@ -58,6 +60,93 @@ function normalizeMetricSnapshot(snapshot: MetricSnapshot): MetricSnapshot {
   };
 }
 
+function markInternalAppConnected(snapshot: MetricSnapshot, refreshedAt: string): MetricSnapshot {
+  return {
+    ...snapshot,
+    integrations: snapshot.integrations.map((integration) =>
+      integration.key === "internal_app"
+        ? {
+            ...integration,
+            status: "connected",
+            lastUpdated: refreshedAt,
+            message: undefined,
+          }
+        : integration
+    ),
+  };
+}
+
+function markInternalAppUnavailable(
+  snapshot: MetricSnapshot,
+  status: "missing_credentials" | "failed",
+  message: string
+): MetricSnapshot {
+  return {
+    ...snapshot,
+    integrations: snapshot.integrations.map((integration) =>
+      integration.key === "internal_app"
+        ? {
+            ...integration,
+            status,
+            message,
+          }
+        : integration
+    ),
+  };
+}
+
+async function logInternalAppRefresh(result: InternalAppFetchResult) {
+  if (!result.ok && result.status === "missing_credentials") {
+    return;
+  }
+
+  try {
+    await prisma.sourceRefreshLog.create({
+      data: {
+        source: RefreshSource.INTERNAL_APP,
+        status: result.ok ? RefreshStatus.SUCCESS : RefreshStatus.FAILED,
+        message: result.ok
+          ? `Fetched ${result.jobCount} jobs; ${result.deliveryJobCount} due within 7 days.`
+          : result.message,
+        endedAt: new Date(),
+        metadata: result.ok
+          ? {
+              jobCount: result.jobCount,
+              deliveryJobCount: result.deliveryJobCount,
+            }
+          : ({
+              reason: result.status,
+            } satisfies Prisma.InputJsonObject),
+      },
+    });
+  } catch {
+    // Logging should never block dashboard rendering or refresh.
+  }
+}
+
+async function withLiveInternalAppMetrics(
+  snapshot: MetricSnapshot,
+  options: { logRefresh?: boolean } = {}
+): Promise<MetricSnapshot> {
+  const result = await fetchInternalAppMetricsResult();
+
+  if (options.logRefresh) {
+    await logInternalAppRefresh(result);
+  }
+
+  if (!result.ok) {
+    return markInternalAppUnavailable(snapshot, result.status, result.message);
+  }
+
+  return markInternalAppConnected(
+    {
+      ...snapshot,
+      ...result.metrics,
+    },
+    result.fetchedAt
+  );
+}
+
 export async function getLatestMetricSnapshot(): Promise<MetricSnapshot> {
   try {
     const latest = await prisma.metricSnapshot.findFirst({
@@ -65,13 +154,13 @@ export async function getLatestMetricSnapshot(): Promise<MetricSnapshot> {
     });
 
     if (latest) {
-      return normalizeMetricSnapshot(latest.payload as MetricSnapshot);
+      return withLiveInternalAppMetrics(normalizeMetricSnapshot(latest.payload as MetricSnapshot));
     }
   } catch {
-    return normalizeMetricSnapshot(metricSnapshot);
+    return withLiveInternalAppMetrics(normalizeMetricSnapshot(metricSnapshot));
   }
 
-  return normalizeMetricSnapshot(metricSnapshot);
+  return withLiveInternalAppMetrics(normalizeMetricSnapshot(metricSnapshot));
 }
 
 export async function saveMetricSnapshot(snapshot: MetricSnapshot) {
@@ -90,19 +179,35 @@ export async function saveMetricSnapshot(snapshot: MetricSnapshot) {
 export async function refreshMetricSnapshot(): Promise<MetricSnapshot> {
   const current = await getLatestMetricSnapshot();
   const refreshedAt = new Date().toISOString();
-  const [myobMetrics, connectTeamMetrics, internalAppMetrics] = await Promise.all([
+  const [myobMetrics, connectTeamMetrics, internalAppResult] = await Promise.all([
     fetchMyobMetrics(),
     fetchConnectTeamMetrics(),
-    fetchInternalAppMetrics(),
+    fetchInternalAppMetricsResult(),
   ]);
+  await logInternalAppRefresh(internalAppResult);
 
   const nextSnapshot: MetricSnapshot = {
     ...current,
     ...myobMetrics,
     ...connectTeamMetrics,
-    ...internalAppMetrics,
+    ...(internalAppResult.ok ? internalAppResult.metrics : {}),
     refreshedAt,
-    integrations: getDefaultIntegrations(refreshedAt),
+    integrations: internalAppResult.ok
+      ? markInternalAppConnected(
+          {
+            ...current,
+            integrations: getDefaultIntegrations(refreshedAt),
+          },
+          internalAppResult.fetchedAt
+        ).integrations
+      : markInternalAppUnavailable(
+          {
+            ...current,
+            integrations: getDefaultIntegrations(refreshedAt),
+          },
+          internalAppResult.status,
+          internalAppResult.message
+        ).integrations,
   };
 
   await saveMetricSnapshot(nextSnapshot);
