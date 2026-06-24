@@ -10,6 +10,8 @@ datasource db {
 
 enum RefreshSource {
   CASHFLOW_EXCEL
+  PROFIT_EXCEL
+  INVOICES_EXCEL
   MYOB
   CONNECT_TEAM
   INTERNAL_APP
@@ -44,6 +46,22 @@ model CashflowUpload {
   fileName     String
   weekCount    Int
   parsedWeeks  Json
+  uploadedAt   DateTime @default(now())
+}
+
+model ProfitUpload {
+  id           String   @id @default(cuid())
+  fileName     String
+  netProfit    Float
+  grossProfit  Float
+  uploadedAt   DateTime @default(now())
+}
+
+model InvoicesUpload {
+  id           String   @id @default(cuid())
+  fileName     String
+  invoiceCount Int
+  parsedData   Json
   uploadedAt   DateTime @default(now())
 }
 

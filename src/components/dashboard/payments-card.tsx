@@ -2,10 +2,18 @@ import { MetricCard } from "@/components/dashboard/metric-card";
 import { formatCurrency } from "@/lib/formatters";
 import type { PaymentsCardProps } from "@/types/metrics";
 
+function getDueLabel(due: string, priority: string): string {
+  if (priority === "overdue" || due.toLowerCase().startsWith("overdue")) return "overdue";
+  if (due === "Due today") return "due today";
+  if (due === "Due tomorrow") return "due tomorrow";
+  if (due.toLowerCase().startsWith("due in")) return "upcoming";
+  return priority;
+}
+
 export function PaymentsCard({ payments }: PaymentsCardProps) {
   return (
     <MetricCard title="Payment Alerts" source={payments.source} status={payments.status}>
-      <div className="min-w-0 space-y-3">
+      <div className="min-w-0 max-h-64 overflow-y-auto space-y-3 pr-1">
         {payments.alerts.map((alert) => (
           <div
             key={`${alert.customer}-${alert.amount}-${alert.due}`}
@@ -18,7 +26,7 @@ export function PaymentsCard({ payments }: PaymentsCardProps) {
               </p>
             </div>
             <p className="mt-1 text-sm font-medium capitalize text-[color:var(--danger)]">
-              {alert.priority} · {alert.due}
+              {getDueLabel(alert.due, alert.priority)} · {alert.due}
             </p>
           </div>
         ))}
