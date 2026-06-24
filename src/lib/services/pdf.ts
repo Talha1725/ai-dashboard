@@ -1,4 +1,4 @@
-import type { ParsedCashflowWeek } from "@/lib/services/excel";
+import type { ParsedCashflowWeek } from "@/types/excel";
 
 type PdfParseResult = {
   text: string;
