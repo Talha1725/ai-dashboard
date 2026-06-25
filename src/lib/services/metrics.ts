@@ -5,6 +5,7 @@ import { fetchConnectTeamMetrics } from "@/lib/connectors/connect-team";
 import { fetchInternalAppMetricsResult } from "@/lib/connectors/internal-app";
 import { fetchMyobMetrics } from "@/lib/connectors/myob";
 import type { InternalAppFetchResult } from "@/types/internal-app";
+import type { ParsedInvoice } from "@/types/excel";
 import type { DataSourceHealth, MetricSnapshot, MetricStatus } from "@/types/metrics";
 
 function hasMyobCredentials() {
@@ -336,7 +337,7 @@ function formatDueDate(dueDateStr: string): { due: string; priority: "overdue" |
   }
 }
 
-export async function replaceInvoices(invoicesData: any[]) {
+export async function replaceInvoices(invoicesData: ParsedInvoice[]) {
   const current = await getLatestMetricSnapshot();
   const refreshedAt = new Date().toISOString();
   

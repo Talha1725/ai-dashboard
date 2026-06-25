@@ -80,7 +80,7 @@ export async function uploadInvoicesFile(file: File) {
       data: {
         fileName: file.name,
         invoiceCount: invoicesData.length,
-        parsedData: invoicesData as any,
+        parsedData: invoicesData as Prisma.InputJsonArray,
       },
     });
 
