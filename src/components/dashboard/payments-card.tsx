@@ -13,7 +13,7 @@ function getDueLabel(due: string, priority: string): string {
 export function PaymentsCard({ payments }: PaymentsCardProps) {
   return (
     <MetricCard title="Payment Alerts" source={payments.source} status={payments.status}>
-      <div className="min-w-0 max-h-64 overflow-y-auto space-y-3 pr-1">
+      <div className="min-w-0 max-h-80 overflow-y-auto space-y-3 pr-1 xl:max-h-96">
         {payments.alerts.map((alert) => (
           <div
             key={`${alert.customer}-${alert.amount}-${alert.due}`}
