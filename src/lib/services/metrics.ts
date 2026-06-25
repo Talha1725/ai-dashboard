@@ -8,12 +8,6 @@ import type { InternalAppFetchResult } from "@/types/internal-app";
 import type { ParsedInvoice } from "@/types/excel";
 import type { DataSourceHealth, MetricSnapshot, MetricStatus } from "@/types/metrics";
 
-function hasMyobCredentials() {
-  return Boolean(
-    process.env.MYOB_CLIENT_ID && process.env.MYOB_CLIENT_SECRET && process.env.MYOB_API_BASE_URL
-  );
-}
-
 function hasConnectTeamCredentials() {
   return Boolean(process.env.CONNECT_TEAM_API_BASE_URL && process.env.CONNECT_TEAM_API_KEY);
 }
@@ -22,14 +16,31 @@ function hasInternalAppCredentials() {
   return Boolean(process.env.INTERNAL_APP_API_BASE_URL && process.env.INTERNAL_APP_API_KEY);
 }
 
+function getUploadStatus({
+  isUploaded,
+  label,
+  refreshedAt,
+}: {
+  isUploaded: boolean;
+  label: string;
+  refreshedAt: string;
+}): DataSourceHealth {
+  return {
+    key:
+      label === "Cashflow upload"
+        ? "cashflow_upload"
+        : label === "P&L upload"
+          ? "profit_upload"
+          : "invoices_upload",
+    label,
+    status: isUploaded ? "connected" : "missing_credentials",
+    lastUpdated: isUploaded ? refreshedAt : undefined,
+    message: isUploaded ? undefined : "Waiting for upload",
+  };
+}
+
 function getDefaultIntegrations(refreshedAt: string): DataSourceHealth[] {
   return [
-    {
-      key: "myob",
-      label: "MYOB",
-      status: hasMyobCredentials() ? "connected" : "missing_credentials",
-      message: hasMyobCredentials() ? undefined : "Credentials pending",
-    },
     {
       key: "connect_team",
       label: "Connect Team",
@@ -43,22 +54,87 @@ function getDefaultIntegrations(refreshedAt: string): DataSourceHealth[] {
       message: hasInternalAppCredentials() ? undefined : "API details pending",
     },
     {
-      key: "excel_upload",
-      label: "Excel upload",
+      key: "cashflow_upload",
+      label: "Cashflow upload",
       status: "connected",
       lastUpdated: refreshedAt,
+    },
+    {
+      key: "profit_upload",
+      label: "P&L upload",
+      status: "missing_credentials",
+      message: "Waiting for upload",
+    },
+    {
+      key: "invoices_upload",
+      label: "Invoice upload",
+      status: "missing_credentials",
+      message: "Waiting for upload",
     },
   ];
 }
 
 function normalizeMetricSnapshot(snapshot: MetricSnapshot): MetricSnapshot {
+  const integrations = snapshot.integrations ?? [];
+  const findIntegration = (key: string) => integrations.find((integration) => integration.key === key);
+  const legacyExcelUpload = findIntegration("excel_upload");
+  const cashflowUpload = findIntegration("cashflow_upload") ?? legacyExcelUpload;
+  const profitUpload = findIntegration("profit_upload");
+  const invoicesUpload = findIntegration("invoices_upload");
+
   return {
     ...snapshot,
-    integrations:
-      Array.isArray(snapshot.integrations) && snapshot.integrations.length > 0
-        ? snapshot.integrations
-        : getDefaultIntegrations(snapshot.refreshedAt),
+    integrations: [
+      {
+        status: hasConnectTeamCredentials() ? "connected" : "missing_credentials",
+        message: hasConnectTeamCredentials() ? undefined : "Credentials pending",
+        ...findIntegration("connect_team"),
+        key: "connect_team",
+        label: "Connect Team",
+      },
+      {
+        status: hasInternalAppCredentials() ? "connected" : "missing_credentials",
+        message: hasInternalAppCredentials() ? undefined : "API details pending",
+        ...findIntegration("internal_app"),
+        key: "internal_app",
+        label: "Internal app",
+      },
+      {
+        status: "connected",
+        lastUpdated: snapshot.refreshedAt,
+        ...cashflowUpload,
+        key: "cashflow_upload",
+        label: "Cashflow upload",
+      },
+      getUploadStatus({
+        isUploaded: snapshot.profit.source === "Excel upload" || profitUpload?.status === "connected",
+        label: "P&L upload",
+        refreshedAt: profitUpload?.lastUpdated ?? snapshot.refreshedAt,
+      }),
+      getUploadStatus({
+        isUploaded: snapshot.payments.source === "Excel upload" || invoicesUpload?.status === "connected",
+        label: "Invoice upload",
+        refreshedAt: invoicesUpload?.lastUpdated ?? snapshot.refreshedAt,
+      }),
+    ],
   };
+}
+
+function markUploadConnected(
+  snapshot: MetricSnapshot,
+  key: "cashflow_upload" | "profit_upload" | "invoices_upload",
+  refreshedAt: string
+): DataSourceHealth[] {
+  return snapshot.integrations.map((integration) =>
+    integration.key === key
+      ? {
+          ...integration,
+          status: "connected",
+          lastUpdated: refreshedAt,
+          message: undefined,
+        }
+      : integration
+  );
 }
 
 function markInternalAppConnected(snapshot: MetricSnapshot, refreshedAt: string): MetricSnapshot {
@@ -222,16 +298,7 @@ export async function replaceCashflowWeeks(cashflowWeeks: MetricSnapshot["cashfl
   const nextSnapshot: MetricSnapshot = {
     ...current,
     refreshedAt,
-    integrations: current.integrations.map((integration) =>
-      integration.key === "excel_upload"
-        ? {
-            ...integration,
-            status: "connected",
-            lastUpdated: refreshedAt,
-            message: undefined,
-          }
-        : integration
-    ),
+    integrations: markUploadConnected(current, "cashflow_upload", refreshedAt),
     cashflow: {
       ...current.cashflow,
       status: "good",
@@ -261,16 +328,7 @@ export async function replaceProfit(profitData: { netProfit: number; grossProfit
   const nextSnapshot: MetricSnapshot = {
     ...current,
     refreshedAt,
-    integrations: current.integrations.map((integration) =>
-      integration.key === "excel_upload"
-        ? {
-            ...integration,
-            status: "connected",
-            lastUpdated: refreshedAt,
-            message: undefined,
-          }
-        : integration
-    ),
+    integrations: markUploadConnected(current, "profit_upload", refreshedAt),
     profit: {
       ...current.profit,
       status: status,
@@ -375,16 +433,7 @@ export async function replaceInvoices(invoicesData: ParsedInvoice[]) {
   const nextSnapshot: MetricSnapshot = {
     ...current,
     refreshedAt,
-    integrations: current.integrations.map((integration) =>
-      integration.key === "excel_upload"
-        ? {
-            ...integration,
-            status: "connected",
-            lastUpdated: refreshedAt,
-            message: undefined,
-          }
-        : integration
-    ),
+    integrations: markUploadConnected(current, "invoices_upload", refreshedAt),
     payments: {
       ...current.payments,
       status: status,

@@ -2,7 +2,12 @@ import type { ReactNode } from "react";
 
 export type MetricStatus = "good" | "warning" | "alert";
 export type DataSourceStatus = "connected" | "missing_credentials" | "failed";
-export type DataSourceKey = "myob" | "connect_team" | "internal_app" | "excel_upload";
+export type DataSourceKey =
+  | "connect_team"
+  | "internal_app"
+  | "cashflow_upload"
+  | "profit_upload"
+  | "invoices_upload";
 
 export type DataSourceHealth = {
   key: DataSourceKey;

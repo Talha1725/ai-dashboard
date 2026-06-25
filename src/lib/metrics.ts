@@ -6,12 +6,6 @@ export const metricSnapshot: MetricSnapshot = {
   refreshedAt: "2026-06-08T08:25:00.000Z",
   integrations: [
     {
-      key: "myob",
-      label: "MYOB",
-      status: "missing_credentials",
-      message: "Credentials pending",
-    },
-    {
       key: "connect_team",
       label: "Connect Team",
       status: "missing_credentials",
@@ -24,10 +18,22 @@ export const metricSnapshot: MetricSnapshot = {
       message: "API details pending",
     },
     {
-      key: "excel_upload",
-      label: "Excel upload",
+      key: "cashflow_upload",
+      label: "Cashflow upload",
       status: "connected",
       lastUpdated: "2026-06-08T08:25:00.000Z",
+    },
+    {
+      key: "profit_upload",
+      label: "P&L upload",
+      status: "missing_credentials",
+      message: "Waiting for upload",
+    },
+    {
+      key: "invoices_upload",
+      label: "Invoice upload",
+      status: "missing_credentials",
+      message: "Waiting for upload",
     },
   ],
   cashflow: {
