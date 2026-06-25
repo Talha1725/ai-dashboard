@@ -1,6 +1,8 @@
 import { LogoutButton } from "@/components/auth/logout-button";
 import { CashflowCard } from "@/components/dashboard/cashflow-card";
 import { CashflowUploadButton } from "@/components/dashboard/cashflow-upload-button";
+import { ProfitUploadButton } from "@/components/dashboard/profit-upload-button";
+import { InvoicesUploadButton } from "@/components/dashboard/invoices-upload-button";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
 import { DeliveriesCard } from "@/components/dashboard/deliveries-card";
@@ -18,8 +20,12 @@ export function DashboardPage({ snapshot }: DashboardPageProps) {
     <main className="dashboard-page-bg min-h-screen">
       <div className="mx-auto flex w-full min-w-0 max-w-none flex-col gap-4 px-3 py-4 sm:px-4 sm:py-5 lg:gap-5 lg:px-5 xl:px-6 2xl:px-8">
         <DashboardHeader lastUpdated={lastUpdated}>
-          <CashflowUploadButton className="w-full" />
-          <LogoutButton className="w-full lg:w-auto" />
+          <div className="flex flex-col sm:flex-row gap-2 items-center">
+            <CashflowUploadButton />
+            <ProfitUploadButton />
+            <InvoicesUploadButton />
+          </div>
+          <LogoutButton />
         </DashboardHeader>
 
         <DashboardOverview snapshot={snapshot} />

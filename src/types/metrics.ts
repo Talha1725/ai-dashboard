@@ -41,7 +41,7 @@ export type MetricSnapshot = {
   };
   profit: {
     status: MetricStatus;
-    source: "MYOB";
+    source: "MYOB" | "Excel upload";
     net: number;
     netMargin: number;
     gross: number;
@@ -61,7 +61,7 @@ export type MetricSnapshot = {
   };
   payments: {
     status: MetricStatus;
-    source: "MYOB";
+    source: "MYOB" | "Excel upload";
     alerts: PaymentAlert[];
   };
 };

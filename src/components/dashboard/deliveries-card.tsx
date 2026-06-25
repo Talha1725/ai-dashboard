@@ -9,20 +9,28 @@ export function DeliveriesCard({ deliveries }: DeliveriesCardProps) {
       status={deliveries.status}
     >
       <div className="min-w-0 space-y-3">
-        {deliveries.jobs.map((job) => (
-          <div
-            key={job.id}
-            className="dashboard-soft-panel grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border p-3"
-          >
-            <div className="min-w-0">
-              <p className="truncate font-semibold text-[color:var(--foreground)]">{job.customer}</p>
-              <p className="truncate text-sm text-[color:var(--text-subtle)]">
-                {job.id} · {job.stage}
+        {deliveries.jobs.length > 0 ? (
+          deliveries.jobs.map((job) => (
+            <div
+              key={job.id}
+              className="dashboard-soft-panel grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border p-3"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-[color:var(--foreground)]">{job.customer}</p>
+                <p className="truncate text-sm text-[color:var(--text-subtle)]">
+                  {job.id} · {job.stage}
+                </p>
+              </div>
+              <p className="text-right text-sm font-semibold text-[color:var(--warning)]">
+                {job.due}
               </p>
             </div>
-            <p className="text-right text-sm font-semibold text-[color:var(--warning)]">{job.due}</p>
+          ))
+        ) : (
+          <div className="dashboard-soft-panel rounded-md border p-3 text-sm text-[color:var(--text-subtle)]">
+            No active jobs due in the next 7 days.
           </div>
-        ))}
+        )}
       </div>
     </MetricCard>
   );

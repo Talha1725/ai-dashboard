@@ -29,7 +29,9 @@ export function IntegrationStatus({ integrations }: IntegrationStatusProps) {
             <div className="min-w-0">
               <p className="font-medium text-[color:var(--foreground)]">{integration.label}</p>
               <p className="truncate text-xs text-[color:var(--text-subtle)]">
-                {integration.lastUpdated
+                {integration.status === "failed" && integration.message
+                  ? integration.message
+                  : integration.lastUpdated
                   ? `Last updated ${formatSnapshotDate(integration.lastUpdated)}`
                   : integration.message ?? "Waiting for setup"}
               </p>

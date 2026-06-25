@@ -56,28 +56,9 @@ export const metricSnapshot: MetricSnapshot = {
     costImpact: 2400,
   },
   deliveries: {
-    status: "warning",
+    status: "good",
     source: "Internal app",
-    jobs: [
-      {
-        id: "JOB-1042",
-        customer: "Northline Fabrication",
-        due: "Tomorrow",
-        stage: "Final QA",
-      },
-      {
-        id: "JOB-1048",
-        customer: "Rowlands Mining",
-        due: "In 3 days",
-        stage: "Packing",
-      },
-      {
-        id: "JOB-1051",
-        customer: "Metro Steel",
-        due: "In 6 days",
-        stage: "Production",
-      },
-    ],
+    jobs: [],
   },
   payments: {
     status: "alert",

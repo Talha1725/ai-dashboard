@@ -1,9 +1,6 @@
 import * as XLSX from "xlsx";
 
-export type ParsedCashflowWeek = {
-  label: string;
-  amount: number;
-};
+import type { ParsedCashflowWeek, ParsedProfit, ParsedInvoice } from "@/types/excel";
 
 function parseAmount(value: unknown) {
   if (typeof value === "number") {
@@ -118,3 +115,101 @@ export function parseCashflowWorkbook(buffer: Buffer): ParsedCashflowWeek[] {
 
   return weeks;
 }
+
+export function parseProfitWorkbook(buffer: Buffer): ParsedProfit {
+  const workbook = XLSX.read(buffer, { type: "buffer" });
+  const firstSheet = workbook.SheetNames[0];
+
+  if (!firstSheet) {
+    throw new Error("The uploaded workbook does not contain any sheets.");
+  }
+
+  const worksheet = workbook.Sheets[firstSheet];
+  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
+    defval: "",
+    raw: false,
+  });
+
+  let netProfit: number | null = null;
+  let grossProfit: number | null = null;
+  let revenue: number | null = null;
+
+  for (const row of rows) {
+    const values = Object.values(row).map(v => String(v).trim().toLowerCase());
+    const originalValues = Object.values(row);
+
+    const revenueIndex = values.findIndex(v => v.includes("revenue") || v.includes("sales"));
+    if (revenueIndex !== -1 && revenue === null) {
+      const amountValue = originalValues.slice(revenueIndex + 1).find(v => parseAmount(v) !== null);
+      if (amountValue !== undefined) revenue = parseAmount(amountValue);
+    }
+
+    const netProfitIndex = values.findIndex(v => v.includes("net profit"));
+    if (netProfitIndex !== -1 && netProfit === null) {
+      const amountValue = originalValues.slice(netProfitIndex + 1).find(v => parseAmount(v) !== null);
+      if (amountValue !== undefined) netProfit = parseAmount(amountValue);
+    }
+
+    const grossProfitIndex = values.findIndex(v => v.includes("gross profit"));
+    if (grossProfitIndex !== -1 && grossProfit === null) {
+      const amountValue = originalValues.slice(grossProfitIndex + 1).find(v => parseAmount(v) !== null);
+      if (amountValue !== undefined) grossProfit = parseAmount(amountValue);
+    }
+  }
+
+  if (netProfit === null || grossProfit === null || revenue === null) {
+    throw new Error("Could not find Revenue, Net Profit, and Gross Profit values in the workbook.");
+  }
+
+  return { netProfit, grossProfit, revenue };
+}
+
+export function parseInvoicesWorkbook(buffer: Buffer): ParsedInvoice[] {
+  const workbook = XLSX.read(buffer, { type: "buffer" });
+  const firstSheet = workbook.SheetNames[0];
+
+  if (!firstSheet) {
+    throw new Error("The uploaded workbook does not contain any sheets.");
+  }
+
+  const worksheet = workbook.Sheets[firstSheet];
+  
+  // Use header: 1 to find where the actual headers start if needed, or assume first row are headers
+  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
+    defval: "",
+    raw: false,
+  });
+
+  const invoices: ParsedInvoice[] = [];
+
+  for (const row of rows) {
+    const getVal = (keys: string[]) => {
+      const foundKey = Object.keys(row).find(k => keys.some(key => k.toLowerCase().includes(key)));
+      return foundKey ? String(row[foundKey]).trim() : "";
+    };
+
+    const customerName = getVal(["customer", "client", "name"]);
+    const amountStr = getVal(["amount", "total", "balance", "due"]);
+    const dueDate = getVal(["due", "date"]);
+    const invoiceNumber = getVal(["invoice", "inv", "number", "ref"]);
+
+    const amount = parseAmount(amountStr);
+
+    // If we have a valid amount and a customer name, treat it as a valid row
+    if (amount !== null && customerName) {
+      invoices.push({
+        customerName,
+        amount,
+        dueDate,
+        invoiceNumber,
+      });
+    }
+  }
+
+  if (invoices.length === 0) {
+    throw new Error("No valid invoice rows could be parsed from the workbook.");
+  }
+
+  return invoices;
+}
+
