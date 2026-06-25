@@ -49,6 +49,26 @@ async function logInvoicesUpload({
   }
 }
 
+async function saveInvoicesUpload({
+  fileName,
+  invoicesData,
+}: {
+  fileName: string;
+  invoicesData: Prisma.InputJsonArray;
+}) {
+  try {
+    await prisma.invoicesUpload.create({
+      data: {
+        fileName,
+        invoiceCount: invoicesData.length,
+        parsedData: invoicesData,
+      },
+    });
+  } catch {
+    // Upload history should not block dashboard updates if migrations are pending locally.
+  }
+}
+
 function validateInvoicesFile(file: File) {
   if (!file.name) {
     throw new InvoicesUploadError("Upload a named unpaid invoices file.");
@@ -76,12 +96,9 @@ export async function uploadInvoicesFile(file: File) {
     const invoicesData = parseInvoicesWorkbook(buffer);
     const snapshot = await replaceInvoices(invoicesData);
 
-    await prisma.invoicesUpload.create({
-      data: {
-        fileName: file.name,
-        invoiceCount: invoicesData.length,
-        parsedData: invoicesData as Prisma.InputJsonArray,
-      },
+    await saveInvoicesUpload({
+      fileName: file.name,
+      invoicesData: invoicesData as Prisma.InputJsonArray,
     });
 
     await logInvoicesUpload({

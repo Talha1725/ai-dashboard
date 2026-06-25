@@ -287,17 +287,27 @@ export async function replaceProfit(profitData: { netProfit: number; grossProfit
   return nextSnapshot;
 }
 
-function formatDueDate(dueDateStr: string): { due: string; priority: "overdue" | "due tomorrow" } {
-  // Parse date (Excel date string or other formats)
-  let parsedDate = new Date(dueDateStr);
-  
-  // If excel serial date (e.g. 45473)
-  if (!isNaN(Number(dueDateStr)) && Number(dueDateStr) > 30000) {
-    parsedDate = new Date((Number(dueDateStr) - (25567 + 2)) * 86400 * 1000);
+function parseInvoiceDueDate(dueDateStr: string) {
+  const trimmedDate = dueDateStr.trim();
+  const dateParts = trimmedDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+
+  if (dateParts) {
+    const [, day, month, year] = dateParts;
+
+    return new Date(Number(year), Number(month) - 1, Number(day));
   }
 
-  if (isNaN(parsedDate.getTime())) {
-    // Cannot parse, fallback
+  if (!Number.isNaN(Number(trimmedDate)) && Number(trimmedDate) > 30000) {
+    return new Date((Number(trimmedDate) - (25567 + 2)) * 86400 * 1000);
+  }
+
+  return new Date(trimmedDate);
+}
+
+function formatDueDate(dueDateStr: string): { due: string; priority: "overdue" | "due tomorrow" } {
+  const parsedDate = parseInvoiceDueDate(dueDateStr);
+
+  if (Number.isNaN(parsedDate.getTime())) {
     return { due: dueDateStr, priority: "overdue" };
   }
 
@@ -310,29 +320,32 @@ function formatDueDate(dueDateStr: string): { due: string; priority: "overdue" |
   const diffMs = dateOnly.getTime() - today.getTime();
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  // Format the date part like "June 25, 2026"
-  const formattedDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(parsedDate);
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(parsedDate);
 
   if (diffDays < 0) {
     const absDays = Math.abs(diffDays);
     return {
-      due: `Overdue by ${absDays} day${absDays === 1 ? '' : 's'}`,
-      priority: "overdue"
+      due: `Overdue by ${absDays} day${absDays === 1 ? "" : "s"}`,
+      priority: "overdue",
     };
   } else if (diffDays === 0) {
     return {
       due: "Due today",
-      priority: "due tomorrow"
+      priority: "due tomorrow",
     };
   } else if (diffDays === 1) {
     return {
       due: "Due tomorrow",
-      priority: "due tomorrow"
+      priority: "due tomorrow",
     };
   } else {
     return {
       due: `Due in ${diffDays} days · ${formattedDate}`,
-      priority: "due tomorrow"
+      priority: "due tomorrow",
     };
   }
 }

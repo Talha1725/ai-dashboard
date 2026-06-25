@@ -49,6 +49,28 @@ async function logProfitUpload({
   }
 }
 
+async function saveProfitUpload({
+  fileName,
+  grossProfit,
+  netProfit,
+}: {
+  fileName: string;
+  grossProfit: number;
+  netProfit: number;
+}) {
+  try {
+    await prisma.profitUpload.create({
+      data: {
+        fileName,
+        netProfit,
+        grossProfit,
+      },
+    });
+  } catch {
+    // Upload history should not block dashboard updates if migrations are pending locally.
+  }
+}
+
 function validateProfitFile(file: File) {
   if (!file.name) {
     throw new ProfitUploadError("Upload a named profit and loss file.");
@@ -76,12 +98,10 @@ export async function uploadProfitFile(file: File) {
     const profitData = parseProfitWorkbook(buffer);
     const snapshot = await replaceProfit(profitData);
 
-    await prisma.profitUpload.create({
-      data: {
-        fileName: file.name,
-        netProfit: profitData.netProfit,
-        grossProfit: profitData.grossProfit,
-      },
+    await saveProfitUpload({
+      fileName: file.name,
+      grossProfit: profitData.grossProfit,
+      netProfit: profitData.netProfit,
     });
 
     await logProfitUpload({

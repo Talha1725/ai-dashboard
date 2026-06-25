@@ -23,6 +23,26 @@ function parseAmount(value: unknown) {
   return isWrappedNegative ? -amount : amount;
 }
 
+function isBlankRow(row: unknown[]) {
+  return row.every((value) => String(value ?? "").trim().length === 0);
+}
+
+function normalizeLabel(value: unknown) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function findAmountAfterLabel(row: unknown[], labelIndex: number) {
+  for (const value of row.slice(labelIndex + 1)) {
+    const amount = parseAmount(value);
+
+    if (amount !== null) {
+      return amount;
+    }
+  }
+
+  return null;
+}
+
 function formatWeekLabel(value: unknown) {
   const label = String(value ?? "").trim();
   return label.length > 0 ? label : null;
@@ -81,6 +101,16 @@ function parseGenericCashflowRows(rows: Record<string, unknown>[]): ParsedCashfl
     .slice(0, 4);
 }
 
+function isKnownNonCashflowReport(rows: unknown[][]) {
+  const reportText = rows
+    .slice(0, 10)
+    .flat()
+    .map((value) => String(value ?? "").trim().toLowerCase())
+    .join(" ");
+
+  return reportText.includes("profit and loss report") || reportText.includes("unpaid invoices report");
+}
+
 export function parseCashflowWorkbook(buffer: Buffer): ParsedCashflowWeek[] {
   const workbook = XLSX.read(buffer, { type: "buffer" });
   const firstSheet = workbook.SheetNames[0];
@@ -100,6 +130,10 @@ export function parseCashflowWorkbook(buffer: Buffer): ParsedCashflowWeek[] {
   const clientBudgetWeeks = parseClientBudgetRows(rawRows);
   if (clientBudgetWeeks.length > 0) {
     return clientBudgetWeeks;
+  }
+
+  if (isKnownNonCashflowReport(rawRows)) {
+    throw new Error("This file is not a cashflow workbook. Use the correct upload button.");
   }
 
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
@@ -125,8 +159,10 @@ export function parseProfitWorkbook(buffer: Buffer): ParsedProfit {
   }
 
   const worksheet = workbook.Sheets[firstSheet];
-  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
+  const rawRows = XLSX.utils.sheet_to_json<unknown[]>(worksheet, {
+    blankrows: false,
     defval: "",
+    header: 1,
     raw: false,
   });
 
@@ -134,26 +170,32 @@ export function parseProfitWorkbook(buffer: Buffer): ParsedProfit {
   let grossProfit: number | null = null;
   let revenue: number | null = null;
 
-  for (const row of rows) {
-    const values = Object.values(row).map(v => String(v).trim().toLowerCase());
-    const originalValues = Object.values(row);
+  for (const row of rawRows) {
+    const labels = row.map(normalizeLabel);
 
-    const revenueIndex = values.findIndex(v => v.includes("revenue") || v.includes("sales"));
-    if (revenueIndex !== -1 && revenue === null) {
-      const amountValue = originalValues.slice(revenueIndex + 1).find(v => parseAmount(v) !== null);
-      if (amountValue !== undefined) revenue = parseAmount(amountValue);
+    for (const [index, label] of labels.entries()) {
+      if ((label === "total income" || label === "revenue") && revenue === null) {
+        revenue = findAmountAfterLabel(row, index);
+      }
+
+      if (label === "net profit" && netProfit === null) {
+        netProfit = findAmountAfterLabel(row, index);
+      }
+
+      if (label === "gross profit" && grossProfit === null) {
+        grossProfit = findAmountAfterLabel(row, index);
+      }
     }
+  }
 
-    const netProfitIndex = values.findIndex(v => v.includes("net profit"));
-    if (netProfitIndex !== -1 && netProfit === null) {
-      const amountValue = originalValues.slice(netProfitIndex + 1).find(v => parseAmount(v) !== null);
-      if (amountValue !== undefined) netProfit = parseAmount(amountValue);
-    }
+  if (revenue === null) {
+    for (const row of rawRows) {
+      const salesIndex = row.map(normalizeLabel).findIndex((label) => label === "sales");
 
-    const grossProfitIndex = values.findIndex(v => v.includes("gross profit"));
-    if (grossProfitIndex !== -1 && grossProfit === null) {
-      const amountValue = originalValues.slice(grossProfitIndex + 1).find(v => parseAmount(v) !== null);
-      if (amountValue !== undefined) grossProfit = parseAmount(amountValue);
+      if (salesIndex !== -1) {
+        revenue = findAmountAfterLabel(row, salesIndex);
+        break;
+      }
     }
   }
 
@@ -162,6 +204,95 @@ export function parseProfitWorkbook(buffer: Buffer): ParsedProfit {
   }
 
   return { netProfit, grossProfit, revenue };
+}
+
+function parseMyobUnpaidInvoiceRows(rows: unknown[][]): ParsedInvoice[] {
+  const invoices: ParsedInvoice[] = [];
+  let currentCustomer = "";
+  let invoiceNumberIndex = -1;
+  let amountIndex = -1;
+  let dueDateIndex = -1;
+
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
+    const row = rows[rowIndex];
+    const firstCell = String(row[0] ?? "").trim();
+    const normalizedFirstCell = firstCell.toLowerCase();
+    const nextFirstCell = String(rows[rowIndex + 1]?.[0] ?? "").trim().toLowerCase();
+
+    if (
+      firstCell &&
+      normalizedFirstCell !== "total" &&
+      normalizedFirstCell !== "ageing percent" &&
+      normalizedFirstCell !== "reference number" &&
+      nextFirstCell === "reference number"
+    ) {
+      currentCustomer = firstCell;
+      continue;
+    }
+
+    if (normalizedFirstCell === "reference number") {
+      const labels = row.map(normalizeLabel);
+      invoiceNumberIndex = 0;
+      amountIndex = labels.findIndex((label) => label.includes("total due"));
+      dueDateIndex = labels.findIndex((label) => label.includes("due date"));
+      continue;
+    }
+
+    if (
+      !currentCustomer ||
+      isBlankRow(row) ||
+      normalizedFirstCell === "total" ||
+      normalizedFirstCell === "ageing percent"
+    ) {
+      continue;
+    }
+
+    const amount = amountIndex >= 0 ? parseAmount(row[amountIndex]) : null;
+    const invoiceNumber = String(row[invoiceNumberIndex] ?? "").trim();
+    const dueDate = dueDateIndex >= 0 ? String(row[dueDateIndex] ?? "").trim() : "";
+
+    if (amount !== null && invoiceNumber && dueDate) {
+      invoices.push({
+        amount,
+        customerName: currentCustomer,
+        dueDate,
+        invoiceNumber,
+      });
+    }
+  }
+
+  return invoices;
+}
+
+function parseGenericInvoiceRows(rows: Record<string, unknown>[]): ParsedInvoice[] {
+  const invoices: ParsedInvoice[] = [];
+
+  for (const row of rows) {
+    const getVal = (keys: string[]) => {
+      const foundKey = Object.keys(row).find((key) =>
+        keys.some((searchKey) => key.toLowerCase().includes(searchKey))
+      );
+
+      return foundKey ? String(row[foundKey]).trim() : "";
+    };
+
+    const customerName = getVal(["customer", "client", "name"]);
+    const amountStr = getVal(["amount", "total", "balance", "due"]);
+    const dueDate = getVal(["due", "date"]);
+    const invoiceNumber = getVal(["invoice", "inv", "number", "ref"]);
+    const amount = parseAmount(amountStr);
+
+    if (amount !== null && customerName) {
+      invoices.push({
+        customerName,
+        amount,
+        dueDate,
+        invoiceNumber,
+      });
+    }
+  }
+
+  return invoices;
 }
 
 export function parseInvoicesWorkbook(buffer: Buffer): ParsedInvoice[] {
@@ -173,38 +304,23 @@ export function parseInvoicesWorkbook(buffer: Buffer): ParsedInvoice[] {
   }
 
   const worksheet = workbook.Sheets[firstSheet];
-  
-  // Use header: 1 to find where the actual headers start if needed, or assume first row are headers
+  const rawRows = XLSX.utils.sheet_to_json<unknown[]>(worksheet, {
+    blankrows: false,
+    defval: "",
+    header: 1,
+    raw: false,
+  });
+  const myobInvoices = parseMyobUnpaidInvoiceRows(rawRows);
+
+  if (myobInvoices.length > 0) {
+    return myobInvoices;
+  }
+
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
     defval: "",
     raw: false,
   });
-
-  const invoices: ParsedInvoice[] = [];
-
-  for (const row of rows) {
-    const getVal = (keys: string[]) => {
-      const foundKey = Object.keys(row).find(k => keys.some(key => k.toLowerCase().includes(key)));
-      return foundKey ? String(row[foundKey]).trim() : "";
-    };
-
-    const customerName = getVal(["customer", "client", "name"]);
-    const amountStr = getVal(["amount", "total", "balance", "due"]);
-    const dueDate = getVal(["due", "date"]);
-    const invoiceNumber = getVal(["invoice", "inv", "number", "ref"]);
-
-    const amount = parseAmount(amountStr);
-
-    // If we have a valid amount and a customer name, treat it as a valid row
-    if (amount !== null && customerName) {
-      invoices.push({
-        customerName,
-        amount,
-        dueDate,
-        invoiceNumber,
-      });
-    }
-  }
+  const invoices = parseGenericInvoiceRows(rows);
 
   if (invoices.length === 0) {
     throw new Error("No valid invoice rows could be parsed from the workbook.");
@@ -212,4 +328,3 @@ export function parseInvoicesWorkbook(buffer: Buffer): ParsedInvoice[] {
 
   return invoices;
 }
-
