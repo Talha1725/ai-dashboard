@@ -362,21 +362,30 @@ function parseInvoiceDueDate(dueDateStr: string) {
   return new Date(trimmedDate);
 }
 
-function formatDueDate(dueDateStr: string): { due: string; priority: "overdue" | "due tomorrow" } {
+function getInvoiceDueOffsetDays(dueDateStr: string) {
   const parsedDate = parseInvoiceDueDate(dueDateStr);
 
   if (Number.isNaN(parsedDate.getTime())) {
-    return { due: dueDateStr, priority: "overdue" };
+    return null;
   }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const dateOnly = new Date(parsedDate);
   dateOnly.setHours(0, 0, 0, 0);
 
   const diffMs = dateOnly.getTime() - today.getTime();
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+}
+
+function formatDueDate(dueDateStr: string): { due: string; priority: "overdue" | "due tomorrow" } {
+  const parsedDate = parseInvoiceDueDate(dueDateStr);
+  const diffDays = getInvoiceDueOffsetDays(dueDateStr);
+
+  if (Number.isNaN(parsedDate.getTime()) || diffDays === null) {
+    return { due: dueDateStr, priority: "overdue" };
+  }
 
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "long",
@@ -412,23 +421,20 @@ export async function replaceInvoices(invoicesData: ParsedInvoice[]) {
   const current = await getLatestMetricSnapshot();
   const refreshedAt = new Date().toISOString();
   
-  const alerts = invoicesData.map((inv) => {
-    const { due, priority } = formatDueDate(inv.dueDate);
-    return {
-      priority, 
-      customer: inv.customerName,
-      amount: inv.amount,
-      due: due,
-      invoiceNumber: inv.invoiceNumber,
-    };
-  });
+  const alerts = invoicesData
+    .filter((inv) => getInvoiceDueOffsetDays(inv.dueDate) === 1)
+    .map((inv) => {
+      const { due, priority } = formatDueDate(inv.dueDate);
+      return {
+        priority,
+        customer: inv.customerName,
+        amount: inv.amount,
+        due,
+        invoiceNumber: inv.invoiceNumber,
+      };
+    });
 
-  let status: MetricStatus = "good";
-  if (alerts.some(a => a.priority === "overdue")) {
-    status = "alert";
-  } else if (alerts.some(a => a.due === "Due today" || a.due === "Due tomorrow")) {
-    status = "warning";
-  }
+  const status: MetricStatus = alerts.length > 0 ? "warning" : "good";
 
   const nextSnapshot: MetricSnapshot = {
     ...current,

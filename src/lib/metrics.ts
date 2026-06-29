@@ -67,15 +67,9 @@ export const metricSnapshot: MetricSnapshot = {
     jobs: [],
   },
   payments: {
-    status: "alert",
+    status: "warning",
     source: "MYOB",
     alerts: [
-      {
-        customer: "Anderson Plant Hire",
-        amount: 12800,
-        due: "Overdue by 4 days",
-        priority: "overdue",
-      },
       {
         customer: "Harbor Components",
         amount: 6400,
