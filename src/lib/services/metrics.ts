@@ -1,16 +1,11 @@
 import { Prisma, RefreshSource, RefreshStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { metricSnapshot } from "@/lib/metrics";
-import { fetchConnectTeamMetrics } from "@/lib/connectors/connect-team";
 import { fetchInternalAppMetricsResult } from "@/lib/connectors/internal-app";
 import { fetchMyobMetrics } from "@/lib/connectors/myob";
 import type { InternalAppFetchResult } from "@/types/internal-app";
 import type { ParsedInvoice } from "@/types/excel";
 import type { DataSourceHealth, MetricSnapshot, MetricStatus } from "@/types/metrics";
-
-function hasConnectTeamCredentials() {
-  return Boolean(process.env.CONNECT_TEAM_API_BASE_URL && process.env.CONNECT_TEAM_API_KEY);
-}
 
 function hasInternalAppCredentials() {
   return Boolean(process.env.INTERNAL_APP_API_BASE_URL && process.env.INTERNAL_APP_API_KEY);
@@ -39,14 +34,8 @@ function getUploadStatus({
   };
 }
 
-function getDefaultIntegrations(refreshedAt: string): DataSourceHealth[] {
+function getDefaultIntegrations(): DataSourceHealth[] {
   return [
-    {
-      key: "connect_team",
-      label: "Connect Team",
-      status: hasConnectTeamCredentials() ? "connected" : "missing_credentials",
-      message: hasConnectTeamCredentials() ? undefined : "Credentials pending",
-    },
     {
       key: "internal_app",
       label: "Internal app",
@@ -56,8 +45,8 @@ function getDefaultIntegrations(refreshedAt: string): DataSourceHealth[] {
     {
       key: "cashflow_upload",
       label: "Cashflow upload",
-      status: "connected",
-      lastUpdated: refreshedAt,
+      status: "missing_credentials",
+      message: "Waiting for upload",
     },
     {
       key: "profit_upload",
@@ -81,38 +70,33 @@ function normalizeMetricSnapshot(snapshot: MetricSnapshot): MetricSnapshot {
   const cashflowUpload = findIntegration("cashflow_upload") ?? legacyExcelUpload;
   const profitUpload = findIntegration("profit_upload");
   const invoicesUpload = findIntegration("invoices_upload");
+  const internalApp = findIntegration("internal_app");
+  const legacyConnectTeam = findIntegration("connect_team");
 
   return {
     ...snapshot,
     integrations: [
       {
-        status: hasConnectTeamCredentials() ? "connected" : "missing_credentials",
-        message: hasConnectTeamCredentials() ? undefined : "Credentials pending",
-        ...findIntegration("connect_team"),
-        key: "connect_team",
-        label: "Connect Team",
-      },
-      {
+        ...legacyConnectTeam,
         status: hasInternalAppCredentials() ? "connected" : "missing_credentials",
         message: hasInternalAppCredentials() ? undefined : "API details pending",
-        ...findIntegration("internal_app"),
+        ...internalApp,
         key: "internal_app",
         label: "Internal app",
       },
-      {
-        status: "connected",
-        lastUpdated: snapshot.refreshedAt,
-        ...cashflowUpload,
-        key: "cashflow_upload",
-        label: "Cashflow upload",
-      },
       getUploadStatus({
-        isUploaded: snapshot.profit.source === "Excel upload" || profitUpload?.status === "connected",
+        isUploaded: snapshot.cashflow.weeks.length > 0 || cashflowUpload?.status === "connected",
+        label: "Cashflow upload",
+        refreshedAt: cashflowUpload?.lastUpdated ?? snapshot.refreshedAt,
+      }),
+      getUploadStatus({
+        isUploaded:
+          profitUpload?.status === "connected" || snapshot.profit.net !== 0 || snapshot.profit.gross !== 0,
         label: "P&L upload",
         refreshedAt: profitUpload?.lastUpdated ?? snapshot.refreshedAt,
       }),
       getUploadStatus({
-        isUploaded: snapshot.payments.source === "Excel upload" || invoicesUpload?.status === "connected",
+        isUploaded: invoicesUpload?.status === "connected" || snapshot.payments.alerts.length > 0,
         label: "Invoice upload",
         refreshedAt: invoicesUpload?.lastUpdated ?? snapshot.refreshedAt,
       }),
@@ -256,9 +240,8 @@ export async function saveMetricSnapshot(snapshot: MetricSnapshot) {
 export async function refreshMetricSnapshot(): Promise<MetricSnapshot> {
   const current = await getLatestMetricSnapshot();
   const refreshedAt = new Date().toISOString();
-  const [myobMetrics, connectTeamMetrics, internalAppResult] = await Promise.all([
+  const [myobMetrics, internalAppResult] = await Promise.all([
     fetchMyobMetrics(),
-    fetchConnectTeamMetrics(),
     fetchInternalAppMetricsResult(),
   ]);
   await logInternalAppRefresh(internalAppResult);
@@ -266,21 +249,20 @@ export async function refreshMetricSnapshot(): Promise<MetricSnapshot> {
   const nextSnapshot: MetricSnapshot = {
     ...current,
     ...myobMetrics,
-    ...connectTeamMetrics,
     ...(internalAppResult.ok ? internalAppResult.metrics : {}),
     refreshedAt,
     integrations: internalAppResult.ok
       ? markInternalAppConnected(
           {
             ...current,
-            integrations: getDefaultIntegrations(refreshedAt),
+            integrations: getDefaultIntegrations(),
           },
           internalAppResult.fetchedAt
         ).integrations
       : markInternalAppUnavailable(
           {
             ...current,
-            integrations: getDefaultIntegrations(refreshedAt),
+            integrations: getDefaultIntegrations(),
           },
           internalAppResult.status,
           internalAppResult.message

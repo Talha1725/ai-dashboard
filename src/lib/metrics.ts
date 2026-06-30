@@ -3,14 +3,8 @@ import type { MetricSnapshot } from "@/types/metrics";
 export type { MetricSnapshot, MetricStatus } from "@/types/metrics";
 
 export const metricSnapshot: MetricSnapshot = {
-  refreshedAt: "2026-06-08T08:25:00.000Z",
+  refreshedAt: new Date().toISOString(),
   integrations: [
-    {
-      key: "connect_team",
-      label: "Connect Team",
-      status: "missing_credentials",
-      message: "Credentials pending",
-    },
     {
       key: "internal_app",
       label: "Internal app",
@@ -37,29 +31,24 @@ export const metricSnapshot: MetricSnapshot = {
     },
   ],
   cashflow: {
-    status: "good",
+    status: "warning",
     source: "Excel upload",
-    weeks: [
-      { label: "Week 1", amount: 45000 },
-      { label: "Week 2", amount: 52000 },
-      { label: "Week 3", amount: 48500 },
-      { label: "Week 4", amount: 61000 },
-    ],
+    weeks: [],
   },
   profit: {
-    status: "good",
-    source: "MYOB",
-    net: 45000,
-    netMargin: 12.5,
-    gross: 75000,
-    grossMargin: 18.2,
+    status: "warning",
+    source: "Excel upload",
+    net: 0,
+    netMargin: 0,
+    gross: 0,
+    grossMargin: 0,
   },
   overtime: {
-    status: "warning",
-    source: "Connect Team",
-    hours: 24,
-    teamPercent: 30,
-    costImpact: 2400,
+    status: "good",
+    source: "Internal app",
+    hours: 0,
+    teamPercent: 0,
+    costImpact: 0,
   },
   deliveries: {
     status: "good",
@@ -67,15 +56,8 @@ export const metricSnapshot: MetricSnapshot = {
     jobs: [],
   },
   payments: {
-    status: "warning",
-    source: "MYOB",
-    alerts: [
-      {
-        customer: "Harbor Components",
-        amount: 6400,
-        due: "Due tomorrow",
-        priority: "due tomorrow",
-      },
-    ],
+    status: "good",
+    source: "Excel upload",
+    alerts: [],
   },
 };

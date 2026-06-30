@@ -21,7 +21,27 @@ export type BiddestonJobsResponse = {
   error?: string;
 };
 
-export type InternalAppMetrics = Pick<MetricSnapshot, "deliveries">;
+export type BiddestonApiJobTime = {
+  jt_id?: string | number | null;
+  firstname?: string | null;
+  surname?: string | null;
+  type?: string | null;
+  job_id?: string | number | null;
+  start_date?: string | null;
+  start_time?: string | null;
+  end_date?: string | null;
+  end_time?: string | null;
+  worked_hours?: string | number | null;
+  labour_rate?: string | number | null;
+};
+
+export type BiddestonJobTimesResponse = {
+  data?: BiddestonApiJobTime[];
+  success?: boolean;
+  error?: string;
+};
+
+export type InternalAppMetrics = Partial<Pick<MetricSnapshot, "deliveries" | "overtime">>;
 
 export type InternalAppFetchResult =
   | {

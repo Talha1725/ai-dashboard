@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 export type MetricStatus = "good" | "warning" | "alert";
 export type DataSourceStatus = "connected" | "missing_credentials" | "failed";
 export type DataSourceKey =
-  | "connect_team"
   | "internal_app"
   | "cashflow_upload"
   | "profit_upload"
@@ -54,7 +53,7 @@ export type MetricSnapshot = {
   };
   overtime: {
     status: MetricStatus;
-    source: "Connect Team";
+    source: "Internal app";
     hours: number;
     teamPercent: number;
     costImpact: number;
