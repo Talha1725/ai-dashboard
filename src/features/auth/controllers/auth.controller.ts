@@ -104,7 +104,15 @@ export async function loginController(request: NextRequest) {
     return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
   }
 
-  const result = await loginAdmin(payload);
+  const result = await loginAdmin(payload).catch((error) => {
+    console.error("Login failed because the authentication service is unavailable.", error);
+
+    return {
+      ok: false as const,
+      error: "Authentication service is temporarily unavailable. Please try again shortly.",
+      status: 503,
+    };
+  });
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
