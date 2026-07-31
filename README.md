@@ -47,6 +47,7 @@ npm run dev
 - `GET /api/metrics` returns the latest cached dashboard snapshot.
 - `POST /api/metrics/refresh` refreshes dashboard data from configured connectors.
 - `POST /api/cashflow/upload` accepts an Excel file field named `file` and updates cashflow weeks.
+- `GET /api/keep-alive` runs a trivial DB query to prevent the Supabase free-tier project from pausing due to inactivity. Triggered every 2 days by the cron job in `vercel.json` (Vercel sends `CRON_SECRET` automatically as a Bearer token).
 
 ## Phase 1 Status
 
