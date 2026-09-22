@@ -8,6 +8,9 @@ export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
 
   if (secret && authHeader !== `Bearer ${secret}`) {
+    await prisma.sourceRefreshLog.create({
+      data: { source: "KEEP_ALIVE", status: "FAILED", message: "Unauthorized: CRON_SECRET mismatch" },
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
