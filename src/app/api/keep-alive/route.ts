@@ -11,7 +11,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await prisma.$queryRaw`SELECT 1`;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+  } catch (error) {
+    await prisma.sourceRefreshLog.create({
+      data: {
+        source: "KEEP_ALIVE",
+        status: "FAILED",
+        message: error instanceof Error ? error.message : String(error),
+      },
+    });
+    return NextResponse.json({ error: "Ping failed" }, { status: 500 });
+  }
+
+  await prisma.sourceRefreshLog.create({
+    data: { source: "KEEP_ALIVE", status: "SUCCESS" },
+  });
 
   return NextResponse.json({ ok: true, timestamp: new Date().toISOString() });
 }

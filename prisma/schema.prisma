@@ -16,6 +16,7 @@ enum RefreshSource {
   CONNECT_TEAM
   INTERNAL_APP
   DASHBOARD
+  KEEP_ALIVE
 }
 
 enum RefreshStatus {
